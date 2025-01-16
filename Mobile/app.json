@@ -1,4 +1,5 @@
 {
+  "scheme": "your-app-scheme",
   "expo": {
     "name": "Mobile",
     "slug": "Mobile",
@@ -24,6 +25,9 @@
     "web": {
       "bundler": "metro",
       "favicon": "./assets/favicon.png"
-    }
+    },
+    "plugins": [
+      "expo-router"
+    ]
   }
 }

@@ -1,13 +1,16 @@
 import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, Text, View } from 'react-native';
 import "./global.css"
+import { ReaderProvider } from '@epubjs-react-native/core';
 
 export default function App() {
   return (
-    <View style={styles.container}>
-      <Text className="bg-red-500">OLA MUNDO</Text>
-      <StatusBar style="auto" />
-    </View>
+    <ReaderProvider>
+      <View style={styles.container}>
+        <Text className="font-bold text-3xl bg-yellow-600 text-red-400">OLA MUNDO</Text>
+        <StatusBar style="auto" />
+      </View>
+    </ReaderProvider>
   );
 }
 
