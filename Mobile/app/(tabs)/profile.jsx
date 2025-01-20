@@ -32,7 +32,7 @@ export default function profile() {
 
   return (
     <View className="my-8 flex justify-between">
-      <Text className='mx-4 text-4xl'>Bem vindo {user.name}</Text>
+      <Text className='mx-4 text-4xl font-semibold'>Bem vindo {user.name}</Text>
 
       <ScrollView className='mt-4'>
         <HorizontalList
@@ -43,7 +43,7 @@ export default function profile() {
               key={idx}
               title={val.title}
               coverSource={val.imageUrl}
-              onPress={() => (console.log('b'))}
+              bookId={idx}
             />
           ))}
         </HorizontalList>

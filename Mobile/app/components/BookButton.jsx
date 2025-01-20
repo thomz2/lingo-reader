@@ -1,19 +1,33 @@
 import { View, Text, Button, Image, TouchableOpacity } from 'react-native'
-import React from 'react'
+import React, { useEffect } from 'react'
+import { Link } from 'expo-router'
 
-export default function BookButton({ title, coverSource, onPress }) {
+export default function BookButton({ bookId, title, coverSource }) {
+    
+    useEffect(() => (console.log(bookId)))
+
     return (
-        <TouchableOpacity
-            onPress={onPress}
+        <Link 
+            href={{
+                pathname: '/reader/' + bookId,
+            }}
+            asChild
         >
-            <View 
-                className="my-2 h-48 shadow-2xl"
-            >
-                <Image
-                    source={{ uri: coverSource }} // "https://picsum.photos/400"
-                    className="flex-1 aspect-[2/3] mr-2 h-full shadow-2xl"
-                />
-            </View>
-        </TouchableOpacity>
+            <TouchableOpacity>
+                <View 
+                    className="my-2 h-80 rounded-3xl flex mr-4 overflow-hidden"
+                >
+                    <Image
+                        source={{ uri: coverSource }} // "https://picsum.photos/400"
+                        className="flex-1 aspect-[2/3] h-full"
+                    />
+                    <View className='flex bg-neutral-800 p-3'>
+                        <Text className='text-white'>
+                            {title}
+                        </Text>
+                    </View>
+                </View>
+            </TouchableOpacity>
+        </Link>
     )
 }

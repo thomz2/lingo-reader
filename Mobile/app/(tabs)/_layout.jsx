@@ -5,15 +5,12 @@ export default function TabLayout() {
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: '#ffd33d',
-        headerStyle: {
-          backgroundColor: '#25292e',
-        },
-        headerShadowVisible: false,
-        headerTintColor: '#fff',
+        tabBarActiveTintColor: '#282A36',
+        tabBarInactiveTintColor: '#282A36',
         tabBarStyle: {
-          backgroundColor: '#25292e',
-        }
+          backgroundColor: '#EFC229', // amarelo
+        },
+        headerShown: false
       }}
     >
       <Tabs.Screen 
@@ -35,26 +32,26 @@ export default function TabLayout() {
           title: 'Books',
           tabBarIcon: ({ color, focused }) => (
             <Ionicons 
-              name={focused ? 'home-sharp' : 'home-outline'} 
+              name={focused ? 'bookmark-sharp' : 'bookmark-outline'} 
               color={color} 
               size={24} 
             />
           ),
         }} 
       />
-      <Tabs.Screen 
-        name="test" 
+      {/* <Tabs.Screen 
+        name="reader" 
         options={{ 
-          title: 'Book',
+          title: 'Read',
           tabBarIcon: ({ color, focused }) => (
             <Ionicons 
-              name={focused ? 'home-sharp' : 'home-outline'} 
+              name={focused ? 'book-sharp' : 'book-outline'} 
               color={color} 
               size={24} 
             />
           ), 
         }} 
-      />
+      /> */}
     </Tabs>
   );
 }
