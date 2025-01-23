@@ -1,7 +1,9 @@
-import { View, Text, ScrollView, Image } from 'react-native'
-import React, { useState } from 'react'
+import { View, Text, ScrollView, Pressable } from 'react-native'
+import React from 'react'
 import BookButton from '../components/BookButton';
 import HorizontalList from '../components/HorizontalList';
+import { useAuth } from '../hooks/AuthContext';
+import Ionicons from '@expo/vector-icons/Ionicons';
 
 export default function profile() {
   
@@ -25,18 +27,22 @@ export default function profile() {
     },
   ];
 
-
-  const [user, setUser] = useState({
-    name: "GH120",
-  })
+  const { authState } = useAuth();
 
   return (
-    <View className="my-8 flex justify-between">
-      <Text className='mx-4 text-4xl font-semibold'>Bem vindo {user.name}</Text>
+    <View className="my-8 flex justify-between relative">
+
+      <Pressable className='absolute right-4'>
+        <Ionicons name="settings-outline" size={36} color="#a78bfa" />
+      </Pressable>
+
+      <Text className='mx-4 text-4xl font-light text-neutral-800'>
+        Welcome, {authState.username.split(' ')[0]}
+      </Text>
 
       <ScrollView className='mt-4'>
         <HorizontalList
-          title={'Lista recente'}
+          title={'Last books'}
         >
           {onlineBooks.map((val, idx) => (
             <BookButton

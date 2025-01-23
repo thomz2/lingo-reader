@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
-import * as SecureStore from 'expo-secure-store';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const AuthContext = createContext({});
 
@@ -8,22 +8,23 @@ export const useAuth = () => {
 };
 
 export const AuthProvider = ({ children }) => {
-    
+
     const [authState, setAuthState] = useState({
         email: null,
-        authenticated: true,
+        username: null,
+        authenticated: false,
     });
     const [loading, setLoading] = useState(true);  // Estado de carregamento
 
     useEffect(() => {
         const loadAuthState = async () => {
             console.log('Iniciando o carregamento do authState...');
-            const memoryAuthState = await SecureStore.getItem('authState');
+            const memoryAuthState = await AsyncStorage.getItem('authState');
             if (memoryAuthState) {
-                console.log('authState carregado do SecureStore:', memoryAuthState);
+                console.log('authState carregado do AsyncStorage:', memoryAuthState);
                 setAuthState(JSON.parse(memoryAuthState));
             } else {
-                console.log('Nenhum authState encontrado no SecureStore.');
+                console.log('Nenhum authState encontrado no AsyncStorage.');
             }
             setLoading(false);  // Finaliza o carregamento quando o estado for carregado
         };
@@ -32,42 +33,56 @@ export const AuthProvider = ({ children }) => {
     }, []);
 
     useEffect(() => {
-        console.log('authState atualizado:', authState);
+        console.log('authState atualizado:', authState, 'indo salvar no AsyncStorage');
+        AsyncStorage.setItem('authState', JSON.stringify(authState));
     }, [authState]);
 
-    const register = (email, username, password) => {
+    const register = async (email, username, password) => {
+
+        // TODO: verificar se ja existe usuario
+
         console.log('Registrando usuário:', email);
         const newUser = { email, username, password };
         try {
-            SecureStore.setItem(email, JSON.stringify(newUser));
+            await AsyncStorage.setItem(email, JSON.stringify(newUser));
             setAuthState({
                 email: email,
+                username: username,
                 authenticated: true,
             });
             console.log('Usuário registrado com sucesso:', email);
             return { error: false, emailAuthenticated: email };
         } catch (error) {
             console.error('Erro ao registrar usuário:', error);
+            return { error: true, msg: 'Error registering user.' }
         }
     };
 
-    const login = (email, password) => {
+    const login = async (email, password) => {
+
+        const credentialsNotFoundJson = { error: true, msg: 'Credentials not found.' };
+
+        if (!email || !password) {
+            return credentialsNotFoundJson;
+        }
+
         console.log('Tentando login com:', email);
-        const credentialsNotFoundJson = { error: true, msg: 'Credenciais não encontradas.' };
         try {
-            const user = JSON.parse(SecureStore.getItem(email));
+            const user = JSON.parse(await AsyncStorage.getItem(email));
             if (!user || user.email !== email || user.password !== password) {
                 console.log('Credenciais não encontradas para:', email);
                 return credentialsNotFoundJson;
             }
             setAuthState({
                 email: user.email,
+                username: user.username,
                 authenticated: true,
             });
             console.log('Login bem-sucedido para:', email);
             return { error: false, emailAuthenticated: email };
         } catch (error) {
             console.error('Erro ao fazer login', error);
+            return { error: true, msg: 'Error logging in.' }
         }
     };
 
@@ -75,6 +90,7 @@ export const AuthProvider = ({ children }) => {
         console.log('Efetuando logout...');
         setAuthState({
             email: null,
+            username: null,
             authenticated: false,
         });
     };

@@ -1,14 +1,22 @@
-import { Tabs } from 'expo-router';
+import { Redirect, Tabs } from 'expo-router';
 import Ionicons from '@expo/vector-icons/Ionicons';
+import { useAuth } from '../hooks/AuthContext';
 
 export default function TabLayout() {
+
+  const { authState } = useAuth();
+
+  if (!authState || !authState.authenticated) {
+    return (<Redirect href={'/auth/login'} />);
+  }
+  
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: '#282A36',
-        tabBarInactiveTintColor: '#282A36',
+        tabBarActiveTintColor: '#fff',
+        tabBarInactiveTintColor: '#fff',
         tabBarStyle: {
-          backgroundColor: '#EFC229', // amarelo
+          backgroundColor: '#a78bfa', // violeta claro
         },
         headerShown: false
       }}
@@ -18,8 +26,21 @@ export default function TabLayout() {
         options={{ 
           title: 'Home', // the name that appears
           tabBarIcon: ({ color, focused }) => (
+            <Ionicons
+              name={focused ? 'home-sharp' : 'home-outline'}
+              color={color}
+              size={24}
+            />
+          ),
+        }} 
+      />
+      <Tabs.Screen 
+        name="books" 
+        options={{ 
+          title: 'Books',
+          tabBarIcon: ({ color, focused }) => (
             <Ionicons 
-              name={focused ? 'home-sharp' : 'home-outline'} 
+              name={focused ? 'book-sharp' : 'book-outline'} 
               color={color} 
               size={24} 
             />
@@ -29,29 +50,16 @@ export default function TabLayout() {
       <Tabs.Screen 
         name="bookshelf" 
         options={{ 
-          title: 'Books',
+          title: 'Notes',
           tabBarIcon: ({ color, focused }) => (
             <Ionicons 
-              name={focused ? 'bookmark-sharp' : 'bookmark-outline'} 
+              name={focused ? 'documents-sharp' : 'documents-outline'} 
               color={color} 
               size={24} 
             />
           ),
         }} 
       />
-      {/* <Tabs.Screen 
-        name="reader" 
-        options={{ 
-          title: 'Read',
-          tabBarIcon: ({ color, focused }) => (
-            <Ionicons 
-              name={focused ? 'book-sharp' : 'book-outline'} 
-              color={color} 
-              size={24} 
-            />
-          ), 
-        }} 
-      /> */}
     </Tabs>
   );
 }

@@ -4,9 +4,16 @@ import React, { useEffect, useState } from 'react'
 import { Reader, useReader, ReaderProvider } from '@epubjs-react-native/core';
 import { useFileSystem } from '@epubjs-react-native/expo-file-system'; // for Expo project
 
-import { useLocalSearchParams } from 'expo-router';
+import { Redirect, useLocalSearchParams } from 'expo-router';
+import { useAuth } from '../hooks/AuthContext';
 
 export default function BookReader() {
+
+    const { authState } = useAuth();
+    
+    if (!authState || !authState.authenticated) {
+        return (<Redirect href={'/auth/login'} />);
+    }
 
     const onlineBooks = [
         { 
