@@ -1,14 +1,25 @@
-import { View, Text, Pressable, TextInput } from 'react-native'
+import { View, Text, Pressable, TextInput, TouchableOpacity } from 'react-native'
 import React, { useState } from 'react'
-import { useRouter } from 'expo-router';
+import { Redirect, useRouter } from 'expo-router';
 import Ionicons from '@expo/vector-icons/Ionicons';
+import { useAuth } from '../hooks/AuthContext';
 
 const index = () => {
 
   const router = useRouter();
 
-  const [email, setEmail] = useState('');
-  const [username, setUsername] = useState('');
+  const { authState, onLogout } = useAuth();
+
+  const [email, setEmail] = useState(authState.email);
+  const [username, setUsername] = useState(authState.username);
+  const [password, setPassword] = useState('');
+
+        
+  if (!authState || !authState.authenticated) {
+    return (
+      <Redirect href={'/auth/login'} />
+    );
+  }
 
   return (
     <View>
@@ -21,7 +32,7 @@ const index = () => {
         <Ionicons name="arrow-back" size={36} color="#a78bfa" />  
       </Pressable>
 
-      <Text className='text-3xl mx-auto text-violet-400 font-normal mt-5'>Settings</Text>
+      <Text className='text-3xl mx-auto text-violet-400 font-light mt-5'>Settings</Text>
 
       <View className='mx-[5%] mt-8'>
         <View className='flex gap-y-2 mt-5'>
@@ -41,6 +52,32 @@ const index = () => {
             placeholder="John Doe"
           />
         </View>
+
+        <View className='flex gap-y-2 mt-3'>
+          <Text className='text-gray-400 font-semibold'>New Password</Text>
+          <TextInput
+            textContentType='password'
+            secureTextEntry={true}
+            className='bg-neutral-50 border-2 border-gray-300 text-gray-900 text-sm rounded-xl focus:ring-violet-500 focus:border-violet-500 block w-full p-2.5'
+            value={password} onChangeText={setPassword}
+            placeholder="Enter new password"
+          />
+        </View>
+
+        <TouchableOpacity
+          className='mt-4 w-full flex justify-center items-center p-4 bg-violet-400 rounded-xl'
+        >
+          <View><Text className='text-white font-semibold text-lg'>Save</Text></View>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          onPress={() => {
+            onLogout();
+          }}
+          className='mt-4 w-full flex justify-center items-center p-4 border-2 border-violet-400 rounded-xl'
+        >
+          <View><Text className='font-semibold text-lg text-violet-400'>Logout</Text></View>
+        </TouchableOpacity>
       </View>
     </View>
   )

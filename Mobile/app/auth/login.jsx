@@ -11,9 +11,13 @@ const Login = () => {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
 
-  const { onLogin } = useAuth();
+  const { onLogin, authState } = useAuth();
 
   const router = useRouter();
+
+  if (authState && authState.authenticated) {
+    return (<Redirect href={'/(tabs)/profile'} />);
+  }
 
   return (
     <View className='flex-1 justify-center items-center h-screen w-screen'>

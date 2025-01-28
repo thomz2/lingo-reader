@@ -1,10 +1,9 @@
-import { View, Text, TouchableOpacity } from 'react-native'
+import { View, Text, TouchableOpacity, TextInput } from 'react-native'
 import React, { useState } from 'react'
 import { Link, useRouter } from 'expo-router'
 
 import '../../global.css'
 import { useAuth } from '../hooks/AuthContext'
-import { TextInput } from 'react-native'
 
 const Register = () => {
 
@@ -14,9 +13,13 @@ const Register = () => {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState('');
 
-  const { onRegister } = useAuth();
+  const { onRegister, authState } = useAuth();
 
   const router = useRouter();
+
+  if (authState && authState.authenticated) {
+    return (<Redirect href={'/(tabs)/profile'} />);
+  }
 
   return (
     <View className='flex-1 justify-center items-center h-screen w-screen'>
