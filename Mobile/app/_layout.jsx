@@ -14,13 +14,6 @@ export default function RootLayout() {
     return (
       <AuthProvider>
         <TestProvider>
-          {/* <Stack>
-              {authState?.authenticated ? (
-                  <Stack.Screen name='(tabs)/profile' />
-              ) : (
-                  <Stack.Screen name='auth/login' />
-              )}
-          </Stack> */}
           <Slot />
         </TestProvider>
       </AuthProvider>

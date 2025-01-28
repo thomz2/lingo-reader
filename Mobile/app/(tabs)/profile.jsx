@@ -4,6 +4,7 @@ import BookButton from '../components/BookButton';
 import HorizontalList from '../components/HorizontalList';
 import { useAuth } from '../hooks/AuthContext';
 import Ionicons from '@expo/vector-icons/Ionicons';
+import { useRouter } from 'expo-router';
 
 export default function profile() {
   
@@ -29,10 +30,17 @@ export default function profile() {
 
   const { authState } = useAuth();
 
+  const router = useRouter();
+
   return (
     <View className="my-8 flex justify-between relative">
 
-      <Pressable className='absolute right-4'>
+      <Pressable
+        className='absolute right-4 z-10'
+        onPress={() => {
+          router.replace('/config')
+        }}
+      >
         <Ionicons name="settings-outline" size={36} color="#a78bfa" />
       </Pressable>
 
