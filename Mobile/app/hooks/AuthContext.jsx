@@ -37,6 +37,26 @@ export const AuthProvider = ({ children }) => {
         AsyncStorage.setItem('authState', JSON.stringify(authState));
     }, [authState]);
 
+    const replaceUser = async (oldUserEmail, newUser) => {
+        
+        try {
+            await AsyncStorage.removeItem(oldUserEmail);
+            await AsyncStorage.setItem(newUser.email, JSON.stringify(newUser));
+        } catch (error) {
+            console.log('erro ao substituir usuario: ', error);
+        }
+        
+        setAuthState({
+            email: newUser.email,
+            username: newUser.username,
+            authenticated: true,
+        });
+        
+        console.log('Configurações do usuário trocadas com sucesso:', newUser.email);
+        return { error: false, emailAuthenticated: email };
+
+    }
+
     const register = async (email, username, password) => {
 
         // TODO: verificar se ja existe usuario
@@ -99,6 +119,7 @@ export const AuthProvider = ({ children }) => {
         onRegister: register,
         onLogin: login,
         onLogout: logout,
+        onReplaceUser: replaceUser,
         authState
     }), [authState]);
 

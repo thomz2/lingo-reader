@@ -4,17 +4,16 @@ import { Redirect, useRouter } from 'expo-router';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { useAuth } from '../hooks/AuthContext';
 
-const index = () => {
+const ConfigIndex = () => {
 
   const router = useRouter();
 
-  const { authState, onLogout } = useAuth();
+  const { authState, onReplaceUser, onLogout } = useAuth();
 
   const [email, setEmail] = useState(authState.email);
   const [username, setUsername] = useState(authState.username);
   const [password, setPassword] = useState('');
 
-        
   if (!authState || !authState.authenticated) {
     return (
       <Redirect href={'/auth/login'} />
@@ -63,9 +62,22 @@ const index = () => {
             placeholder="Enter new password"
           />
         </View>
+      </View>
 
+      <View className='mx-[5%] absolute flex-1 justify-end h-[98vh] w-[90%]'>
         <TouchableOpacity
-          className='mt-4 w-full flex justify-center items-center p-4 bg-violet-400 rounded-xl'
+          onPress={() => {
+            
+            const newProfile = {
+              email: email, 
+              username: username, 
+              password: password
+            }
+
+            onReplaceUser(authState.email, newProfile);
+            
+          }}
+          className='w-full flex justify-center items-center p-4 bg-violet-400 rounded-xl'
         >
           <View><Text className='text-white font-semibold text-lg'>Save</Text></View>
         </TouchableOpacity>
@@ -83,4 +95,4 @@ const index = () => {
   )
 }
 
-export default index;
+export default ConfigIndex;
