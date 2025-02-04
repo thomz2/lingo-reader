@@ -64,7 +64,7 @@ const ConfigIndex = () => {
         </View>
       </View>
 
-      <View className='mx-[5%] absolute flex-1 justify-end h-[98vh] w-[90%]'>
+      <View className='mx-[5%] absolute flex-1 justify-end h-[95vh] w-[90%]'>
         <TouchableOpacity
           onPress={() => {
             

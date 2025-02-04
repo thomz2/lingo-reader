@@ -115,6 +115,72 @@ export const AuthProvider = ({ children }) => {
         });
     };
 
+    // TODO: ve se usuario ja possui livro e se for o caso nao deixar adicionar
+    const addBookToUser = async (userEmail, book) => {
+        const userEmailKey = userEmail + ".books";
+        let alreadyExists = false;
+
+        try {
+
+            let userBooks = JSON.parse(await AsyncStorage.getItem(userEmailKey));
+            
+            if (!userBooks) {
+                userBooks = [] // primeiro livro do usuario
+            } 
+            
+            else {
+                userBooks.forEach(element => {
+                    if (element.uri == book.uri) {
+                        alreadyExists = true;
+                        return;
+                    }
+                });
+            }
+            
+            if (alreadyExists) {
+                return { error: true, msg: 'You already has this book' }
+            }
+
+            await AsyncStorage.setItem(userEmailKey, JSON.stringify([book.uri, ...userBooks]));
+
+        } catch (error) {
+            return { error: true, msg: error };
+        }
+
+    }
+
+    const getUserBooks = async (userEmail) => {
+        const userEmailKey = userEmail + ".books";
+        try {
+            const userBooks = JSON.parse(await AsyncStorage.getItem(userEmailKey));
+            if (!userBooks) return [];
+            return userBooks;
+        } catch (error) {
+            return { error: true, msg: "Error when fetching books"};
+        }
+    };
+
+    // const addGlobalBook = async (bookId) => {
+    //     try {
+    //         const globalBooks = JSON.parse(await AsyncStorage.getItem('globalBooks')) || [];
+    //         globalBooks.push(bookId);
+    //         await AsyncStorage.setItem('globalBooks', JSON.stringify(globalBooks));
+    //         console.log(`Livro ${bookId} adicionado aos livros globais`);
+    //     } catch (error) {
+    //         console.error('Erro ao adicionar livro global:', error);
+    //     }
+    // };
+
+    // const getGlobalBooks = async () => {
+    //     try {
+    //         const globalBooks = JSON.parse(await AsyncStorage.getItem('globalBooks')) || [];
+    //         return globalBooks;
+    //     } catch (error) {
+    //         console.error('Erro ao recuperar livros globais:', error);
+    //         return [];
+    //     }
+    // };
+
     const value = useMemo(() => ({
         onRegister: register,
         onLogin: login,
