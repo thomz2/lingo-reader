@@ -115,7 +115,6 @@ export const AuthProvider = ({ children }) => {
         });
     };
 
-    // TODO: ve se usuario ja possui livro e se for o caso nao deixar adicionar
     const addBookToUser = async (userEmail, book) => {
         const userEmailKey = userEmail + ".books";
         let alreadyExists = false;
@@ -141,7 +140,9 @@ export const AuthProvider = ({ children }) => {
                 return { error: true, msg: 'You already has this book' }
             }
 
-            await AsyncStorage.setItem(userEmailKey, JSON.stringify([book.uri, ...userBooks]));
+            await AsyncStorage.setItem(userEmailKey, JSON.stringify([book, ...userBooks]));
+
+            return null;
 
         } catch (error) {
             return { error: true, msg: error };
@@ -186,6 +187,8 @@ export const AuthProvider = ({ children }) => {
         onLogin: login,
         onLogout: logout,
         onReplaceUser: replaceUser,
+        onAddBookToUser: addBookToUser,
+        onGetUserBooks: getUserBooks,
         authState
     }), [authState]);
 
