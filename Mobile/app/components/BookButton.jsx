@@ -15,14 +15,14 @@ export default function BookButton({ bookId, title, coverSource }) {
         >
             <TouchableOpacity>
                 <View 
-                    className="my-2 h-80 rounded-3xl flex mr-4 overflow-hidden"
+                    className="h-72 rounded-3xl flex mx-2 overflow-hidden aspect-[2/3]"
                 >
                     <Image
                         source={{ uri: coverSource }} // "https://picsum.photos/400"
-                        className="flex-1 aspect-[2/3] h-full"
+                        className="flex-1 h-full"
                     />
-                    <View className='flex bg-neutral-800 p-3'>
-                        <Text className='text-white'>
+                    <View className='flex bg-neutral-800 p-3 w-[100%]'>
+                        <Text className='text-white w-fit'>
                             {title}
                         </Text>
                     </View>

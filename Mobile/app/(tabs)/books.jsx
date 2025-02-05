@@ -1,4 +1,4 @@
-import { View, Text, TouchableOpacity, SafeAreaView } from 'react-native'
+import { View, Text, TouchableOpacity, SafeAreaView, ScrollView } from 'react-native'
 import React, { useEffect, useState } from 'react'
 
 import * as DocumentPicker from 'expo-document-picker';
@@ -21,18 +21,22 @@ const Books = () => {
 
   // TODO: ajeitar situacao em que usuario acaba de colocar o livro e esse useEffect nao acontece
   useEffect(() => {
-    const loadBooks = async () => {
-      const booksRes = await onGetUserBooks(authState.email);
-      if (!booksRes || booksRes.error) {
-        setError(booksRes.msg);
-      }
-      setBooks(booksRes);
-      setLoadingBooks(false);
-      console.log('user books:', books);
-    }
-
     loadBooks();
   }, []);
+
+  useEffect(() => {
+    loadBooks();
+  }, [bookUri]);
+
+  const loadBooks = async () => {
+    const booksRes = await onGetUserBooks(authState.email);
+    if (!booksRes || booksRes.error) {
+      setError(booksRes.msg);
+    }
+    setBooks(booksRes);
+    setLoadingBooks(false);
+    console.log('user books:', books);
+  }
 
   const pickDocument = async () => {
     try {
@@ -43,11 +47,17 @@ const Books = () => {
       return null;
     }
   };
+
+  const chunkArray = (arr, size) => {
+    return Array.from({ length: Math.ceil(arr.length / size) }, (v, i) =>
+      arr.slice(i * size, i * size + size)
+    );
+  };
   
   return (    
     <View className='relative h-full w-full'>
       <TouchableOpacity 
-        className='absolute bottom-6 right-6' 
+        className='z-50 absolute bottom-6 right-6' 
         onPress={async () => {      
           const press = async () => {
             const res = await pickDocument();
@@ -76,10 +86,10 @@ const Books = () => {
             };
             console.log('book:', book);
 
+            const addBookRes = await onAddBookToUser(authState.email, book);
+
             setBookUri(book.uri);
 
-            const addBookRes = await onAddBookToUser(authState.email, book);
-            
             if (addBookRes && addBookRes.error) {
               setError(addBookRes.msg);
             }
@@ -94,12 +104,28 @@ const Books = () => {
         </View>
       </TouchableOpacity>
 
-      {/* TODO: trocar essa horizontal list para uma lista que fique 3 na horizontal e scroll para baixo */}
-      {!loadingBooks && <HorizontalList>
-        {books.map((book, idx) => (
-          <BookButton key={idx} bookId={book.uri} title={book.name} coverSource={"https://picsum.photos/400"}/>
+      <Text className='mx-4 mt-8 mb-4 text-4xl font-light text-neutral-800'>
+        Books
+      </Text>
+
+      {!loadingBooks && <ScrollView className="mx-auto flex-1 bg-gray-100">
+        {chunkArray(books, 2).map((row, rowIndex) => (
+          <View key={rowIndex} className="flex-row justify-between p-4">
+            {row.map((book, itemIndex) => (
+              <View key={itemIndex} className='-mb-3'>
+                <BookButton bookId={book.uri} title={book.name.replace('.epub', '')} coverSource={"https://picsum.photos/400"}/>
+              </View>
+            ))}
+
+            {row.length < 2 &&
+              Array.from({ length: 2 - row.length }).map((_, index) => (
+                <View key={`empty-${index}`} className="flex-1 mx-2" />
+              ))}
+          </View>
         ))}
-      </HorizontalList> }
+        <View className='p-4'/>
+      </ScrollView>}
+
 
     </View>
   )
