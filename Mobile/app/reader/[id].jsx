@@ -1,3 +1,14 @@
+/*
+COISAS QUE TENHO QUE PEGAR AQUI AINDA E MUDAR NA ESTRUTURA DE DADOS DO LIVRO
+
+- página que usuário parou
+- porcentagem de leitura do usuário
+- incrementar a quantidade de vezes que ele leu
+- timestamp da ultima leitura
+
+*/
+
+
 import { View, Text, SafeAreaView, ActivityIndicator } from 'react-native'
 import React, { useEffect, useState } from 'react'
 
@@ -24,8 +35,6 @@ export default function BookReader() {
         const getBook = async () => {
             try {
                 const res = await onGetBookByIdAndEmail(authState.email, id);
-                console.log("ID", id);
-                console.log("BOOK", res);
 
                 if (res.error) {
                     console.error(res.error);
@@ -45,7 +54,7 @@ export default function BookReader() {
 
     const { goToLocation } = useReader();
 
-    const [ghAparece, setGhAparece] = useState(0)
+    const [menuAparece, setMenuAparece] = useState(0);
 
     if (loading) {
         return <ActivityIndicator />
@@ -62,20 +71,49 @@ export default function BookReader() {
     return (
         <ReaderProvider>
             <SafeAreaView style={{ flex: 1 }}>
+
+                {menuAparece > 0 && <View className=''>
+                    <Text>ola mundo</Text>
+                </View>}
+
                 <Reader
                     src={src} // "https://s3.amazonaws.com/moby-dick/OPS/package.opf"
                     fileSystem={useFileSystem}
                     
                     // Text selection feature
                     enableSelection={true}
-                    onSelected={() => {
-                        setGhAparece(ghAparece + 1)
+                    onSelected={(selectedText) => {
+                        setMenuAparece(2)
+                        console.log('selecionou')
                     }}
 
-                    // Single tap feature (open menu)
-                    enableTap={true}
                     onSingleTap={() => {
-                        setGhAparece(120)
+                        console.log('clicou')
+                        setMenuAparece((menuState) => {
+                            if (menuState == 0) return 1;
+                            else return 0;
+                        })
+                    }}
+                    onPress={() => {
+                        console.log('clicou')
+                        setMenuAparece((menuState) => {
+                            if (menuState == 0) return 1;
+                            else return 0;
+                        })
+                    }}
+                    onDoubleTap={() => {
+                        console.log('clicou')
+                        setMenuAparece((menuState) => {
+                            if (menuState == 0) return 1;
+                            else return 0;
+                        })
+                    }}
+                    onLongPress={() => {
+                        console.log('clicou')
+                        setMenuAparece((menuState) => {
+                            if (menuState == 0) return 1;
+                            else return 0;
+                        })
                     }}
                 />
             </SafeAreaView>

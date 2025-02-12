@@ -48,7 +48,7 @@ export default function TabLayout() {
         }} 
       />
       <Tabs.Screen 
-        name="bookshelf" 
+        name="notes" 
         options={{ 
           title: 'Notes',
           tabBarIcon: ({ color, focused }) => (
