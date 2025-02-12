@@ -1,4 +1,4 @@
-import { View, Text, SafeAreaView } from 'react-native'
+import { View, Text, SafeAreaView, ActivityIndicator } from 'react-native'
 import React, { useEffect, useState } from 'react'
 
 import { Reader, useReader, ReaderProvider } from '@epubjs-react-native/core';
@@ -9,34 +9,47 @@ import { useAuth } from '../hooks/AuthContext';
 
 export default function BookReader() {
 
-    const { authState } = useAuth();
+    const { authState, onGetBookByIdAndEmail } = useAuth();
     
     if (!authState || !authState.authenticated) {
         return (<Redirect href={'/auth/login'} />);
     }
 
-    const onlineBooks = [
-        { 
-          title: 'Book One',
-          imageUrl: 'https://m.media-amazon.com/images/I/61kif0Iav7L._AC_UF1000,1000_QL80_.jpg',
-          src: 'https://s3.amazonaws.com/moby-dick/OPS/package.opf' 
-        },
-        { 
-          title: 'Book Two',
-          imageUrl: 'https://picsum.photos/400' 
-        },
-        { 
-          title: 'Book Three',
-          imageUrl: 'https://picsum.photos/200' 
-        },
-        { 
-          title: 'Book 4',
-          imageUrl: 'https://picsum.photos/200' 
-        },
-    ];
-
     const { id } = useLocalSearchParams();
-    const src = onlineBooks[id].src;
+
+    const [src, setSrc] = useState(null);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        const getBook = async () => {
+            try {
+                const res = await onGetBookByIdAndEmail(authState.email, id);
+                console.log("ID", id);
+                console.log("BOOK", res);
+
+                if (res.error) {
+                    console.error(res.error);
+                    return;
+                }
+
+                setSrc(res.book.uri);
+            } catch (error) {
+                console.error('Error fetching book:', error);
+            } finally {
+                setLoading(false);
+            }
+        }
+
+        getBook();
+    });
+
+    const { goToLocation } = useReader();
+
+    const [ghAparece, setGhAparece] = useState(0)
+
+    if (loading) {
+        return <ActivityIndicator />
+    }
 
     if (!src) return (
         <View className='flex justify-center items-center my-auto'>
@@ -45,10 +58,6 @@ export default function BookReader() {
             </Text>
         </View>
     )
-
-    const { goToLocation } = useReader();
-
-    const [ghAparece, setGhAparece] = useState(0)
 
     return (
         <ReaderProvider>

@@ -10,7 +10,7 @@ import BookButton from '../components/BookButton';
 
 const Books = () => {
 
-  const { authState, onAddBookToUser, onGetUserBooks } = useAuth();
+  const { authState, onAddBookToUser, onGetUserBooks, onGetNewId } = useAuth();
 
   // const { getMeta } = useReader();
   
@@ -77,12 +77,16 @@ const Books = () => {
 
             setError(false);
 
+            const newId = await onGetNewId(authState.email);
+
             // usando apenas o expo document picker temos essas infos sobre o livro.
             // se quisermos infos melhores podemos usar a lib do livro pra pegar metadata 
             const book = {
-              'name': res.assets[0].name,
+              'id': newId,
+              'name': res.assets[0].name.replace('.epub', ''),
               'uri': res.assets[0].uri,
-              'completion': 0
+              'completion': 0,
+              'cover': 'https://picsum.photos/id/' + newId % 500 + '/600'
             };
             console.log('book:', book);
 
@@ -113,7 +117,11 @@ const Books = () => {
           <View key={rowIndex} className="flex-row justify-between p-4">
             {row.map((book, itemIndex) => (
               <View key={itemIndex} className='-mb-3'>
-                <BookButton bookId={book.uri} title={book.name.replace('.epub', '')} coverSource={"https://picsum.photos/400"}/>
+                <BookButton 
+                  bookId={book.id}
+                  title={book.name.replace('.epub', '')} 
+                  coverSource={book.cover}
+                />
               </View>
             ))}
 

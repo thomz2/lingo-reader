@@ -4,7 +4,7 @@ import { Link } from 'expo-router'
 
 export default function BookButton({ bookId, title, coverSource }) {
     
-    useEffect(() => (console.log(bookId)))
+    useEffect(() => (console.log('bookid:', bookId)))
 
     return (
         <Link 

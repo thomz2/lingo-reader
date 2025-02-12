@@ -39,11 +39,21 @@ export const AuthProvider = ({ children }) => {
 
     const replaceUser = async (oldUserEmail, newUser) => {
         
+        // TODO: fazer isso para books e para notas tambem
+
         try {
             await AsyncStorage.removeItem(oldUserEmail);
             await AsyncStorage.setItem(newUser.email, JSON.stringify(newUser));
         } catch (error) {
             console.log('erro ao substituir usuario: ', error);
+        }
+
+        try {
+            const userBooks = await AsyncStorage.getItem(oldUserEmail + ".books");
+            await AsyncStorage.removeItem(oldUserEmail + ".books");
+            await AsyncStorage.setItem(newUser.email, userBooks);
+        } catch (error) {
+            console.log('erro ao substituir livros do usuario');
         }
         
         setAuthState({
@@ -71,6 +81,9 @@ export const AuthProvider = ({ children }) => {
                 authenticated: true,
             });
             console.log('Usuário registrado com sucesso:', email);
+            
+            _addDefaultBookToUser(email); // metodo sem o await pq nao precisa esperar
+            
             return { error: false, emailAuthenticated: email };
         } catch (error) {
             console.error('Erro ao registrar usuário:', error);
@@ -115,6 +128,18 @@ export const AuthProvider = ({ children }) => {
         });
     };
 
+    const _addDefaultBookToUser = async (userEmail) => {
+        const book = {
+            'id': 0,
+            'name': 'Moby Dick',
+            'uri': 'https://s3.amazonaws.com/moby-dick/OPS/package.opf',
+            'completion': 0,
+            'cover': 'https://m.media-amazon.com/images/I/61kif0Iav7L._AC_UF1000,1000_QL80_.jpg',
+        }
+
+        return await addBookToUser(userEmail, book);
+    }
+
     const addBookToUser = async (userEmail, book) => {
         const userEmailKey = userEmail + ".books";
         let alreadyExists = false;
@@ -129,8 +154,9 @@ export const AuthProvider = ({ children }) => {
             
             else {
                 userBooks.forEach(element => {
-                    if (element.uri == book.uri) {
+                    if (element.name === book.name) {
                         alreadyExists = true;
+                        console.log('livro ja existente');
                         return;
                     }
                 });
@@ -161,6 +187,43 @@ export const AuthProvider = ({ children }) => {
         }
     };
 
+    const getNewId = async (userEmail) => {
+        const books = await getUserBooks(userEmail);
+        return books.length;
+    }
+
+    const getBookByIdAndEmail = async (userEmail, bookId) => {
+        const userEmailKey = userEmail + ".books"; 
+      
+        try {    
+          const userBooks = JSON.parse(await AsyncStorage.getItem(userEmailKey));
+
+          console.log("AUTHCONTEXTO USERBOOKS", userBooks);
+          
+          if (!userBooks) {
+            return { error: true, msg: "No books found for this user." };
+          }
+      
+          for (let i = 0; i < userBooks.length; i++) {
+            if (userBooks[i].id == bookId) {
+                return { error: false, book: userBooks[i] };
+            }
+          }
+      
+          console.log("AUTHCONTEXTO BOOK", book);
+
+
+          if (!book) {
+            return { error: true, msg: "Book not found." };
+          }
+      
+          return { error: false, book };
+      
+        } catch (error) {
+          return { error: true, msg: "Error fetching the book: " + error.message };
+        }
+      };
+
     // const addGlobalBook = async (bookId) => {
     //     try {
     //         const globalBooks = JSON.parse(await AsyncStorage.getItem('globalBooks')) || [];
@@ -189,6 +252,8 @@ export const AuthProvider = ({ children }) => {
         onReplaceUser: replaceUser,
         onAddBookToUser: addBookToUser,
         onGetUserBooks: getUserBooks,
+        onGetNewId: getNewId,
+        onGetBookByIdAndEmail: getBookByIdAndEmail,
         authState
     }), [authState]);
 

@@ -1,36 +1,39 @@
-import { View, Text, ScrollView, Pressable } from 'react-native'
-import React from 'react'
+import { View, Text, ScrollView, Pressable, ActivityIndicator } from 'react-native'
+import React, { useEffect, useState } from 'react'
 import BookButton from '../components/BookButton';
 import HorizontalList from '../components/HorizontalList';
 import { useAuth } from '../hooks/AuthContext';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { useRouter } from 'expo-router';
 
-export default function profile() {
+export default function Profile() {
   
-  const onlineBooks = [
-    { 
-      title: 'Book One',
-      imageUrl: 'https://m.media-amazon.com/images/I/61kif0Iav7L._AC_UF1000,1000_QL80_.jpg',
-      src: 'https://s3.amazonaws.com/moby-dick/OPS/package.opf' 
-    },
-    { 
-      title: 'Book Two',
-      imageUrl: 'https://picsum.photos/400' 
-    },
-    { 
-      title: 'Book Three',
-      imageUrl: 'https://picsum.photos/200' 
-    },
-    { 
-      title: 'Book 4',
-      imageUrl: 'https://picsum.photos/200' 
-    },
-  ];
-
-  const { authState } = useAuth();
+  const { authState, onGetUserBooks } = useAuth();
 
   const router = useRouter();
+
+  const [books, setBooks] = useState([]);
+  const [loading, setLoading] = useState(true); // Estado para controlar o carregamento
+
+  useEffect(() => {
+    const getAndSetBooks = async () => {
+      try {
+        const books = await onGetUserBooks(authState.email);
+        setBooks(books);
+      } catch (error) {
+        console.error('Error fetching books:', error);
+      } finally {
+        setLoading(false); // Finaliza o carregamento, independentemente do resultado
+      }
+    };
+
+    getAndSetBooks();
+  }, []);
+
+  if (loading) {
+    return <ActivityIndicator />;
+  }
+
 
   return (
     <View className="my-8 flex justify-between relative">
@@ -52,12 +55,12 @@ export default function profile() {
         <HorizontalList
           title={'Last books'}
         >
-          {onlineBooks.map((val, idx) => (
+          {books.map((val, idx) => (
             <BookButton
               key={idx}
-              title={val.title}
-              coverSource={val.imageUrl}
-              bookId={idx}
+              title={val.name}
+              coverSource={val.cover}
+              bookId={val.id}
             />
           ))}
         </HorizontalList>
