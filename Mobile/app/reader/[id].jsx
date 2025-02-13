@@ -93,7 +93,7 @@ export default function BookReader() {
         <ReaderProvider>
             <SafeAreaView className='flex-1 relative'>
 
-                {menuAparece == 1 && <View className='flex flex-row items-center bg-violet-400 absolute bottom-4 p-4 self-center z-10 rounded-xl'>
+                {menuAparece == 1 && <View className='flex flex-row items-center bg-violet-400 absolute bottom-4 p-1 self-center z-10 rounded-xl'>
                     <TouchableOpacity onPress={() => setMenuAparece(0)}>
                         <Ionicons name="close" size={50} color="red" className='mr-6' />
                     </TouchableOpacity>
@@ -135,7 +135,7 @@ export default function BookReader() {
                         onSelected={(selectedText) => {
                             setMenuAparece(1)
                             console.log('TEXTO SELECIONADO:', selectedText);
-                            setSelectedText(selectedText.replace(/[\t\n\r\f\v]+/g, " "));
+                            setSelectedText(selectedText.replace(/[\t\n\r\f\v]+/g, " ").trim());
                         }}
 
                         onLocationChange={(totalLocations, currentLocation) => {
