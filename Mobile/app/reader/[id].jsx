@@ -9,7 +9,7 @@ COISAS QUE TENHO QUE PEGAR AQUI AINDA E MUDAR NA ESTRUTURA DE DADOS DO LIVRO
 */
 
 
-import { View, Text, SafeAreaView, ActivityIndicator, TouchableOpacity } from 'react-native'
+import { View, Text, SafeAreaView, ActivityIndicator, TouchableOpacity, ScrollView } from 'react-native'
 import React, { useEffect, useState } from 'react'
 
 import { Reader, useReader, ReaderProvider } from '@epubjs-react-native/core';
@@ -97,9 +97,9 @@ export default function BookReader() {
                     <TouchableOpacity onPress={() => setMenuAparece(0)}>
                         <Ionicons name="close" size={50} color="red" className='mr-6' />
                     </TouchableOpacity>
-                    <TouchableOpacity onPress={() => setMenuAparece(2)}>
+                    {selectedText != '' && <TouchableOpacity onPress={() => setMenuAparece(2)}>
                         <MaterialIcons name="edit-note" size={54} color="white" />
-                    </TouchableOpacity>
+                    </TouchableOpacity>}
                     <MaterialIcons name="drag-indicator" size={50} color="white" />
                 </View>}
 
@@ -108,8 +108,11 @@ export default function BookReader() {
                         <Ionicons name="close" size={50} color="red" className='mr-6' />
                     </TouchableOpacity>
                     <View className='p-3 flex bg-white shadow-2xl shadow-black aspect-[3/2] h-[28%] rounded-lg overflow-hidden'>
-                        <View className='border-2 rounded-md border-gray-200 bg-neutral-100 p-3'>
-                            <Text>{selectedText}</Text>
+                        <Text className='font-light mb-1'>Last selected</Text>
+                        <View className='h-20'> {/* Se quiser mudar o tamanho da caixa que aparece a seleção, é aqui */}
+                            <ScrollView className='border-2 rounded-md border-gray-200 bg-neutral-100 p-3'>
+                                <Text>{selectedText}</Text>
+                            </ScrollView>
                         </View>
                     </View>
 
