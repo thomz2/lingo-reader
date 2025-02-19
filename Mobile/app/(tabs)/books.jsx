@@ -1,19 +1,22 @@
-import { View, Text, TouchableOpacity, SafeAreaView, ScrollView } from 'react-native'
+import { View, Text, TouchableOpacity, SafeAreaView, ScrollView, Pressable } from 'react-native'
 import React, { useEffect, useState } from 'react'
 
 import * as DocumentPicker from 'expo-document-picker';
 
 import { useAuth } from '../hooks/AuthContext';
-import HorizontalList from '../components/HorizontalList';
 import BookButton from '../components/BookButton';
+
+import Ionicons from '@expo/vector-icons/Ionicons';
+
+import { useRouter } from 'expo-router';
 
 
 const Books = () => {
 
+  const router = useRouter();
+  
   const { authState, onAddBookToUser, onGetUserBooks, onGetNewId } = useAuth();
 
-  // const { getMeta } = useReader();
-  
   const [error, setError] = useState(false);
   const [bookUri, setBookUri] = useState('');
   const [loadingBooks, setLoadingBooks] = useState(true);
@@ -108,13 +111,25 @@ const Books = () => {
         </View>
       </TouchableOpacity>
 
+      <Pressable
+        className='absolute right-4 top-8 z-10'
+        onPress={() => {
+          router.replace('/config')
+        }}
+      >
+        <Ionicons name="settings-outline" size={36} color="#a78bfa" />
+      </Pressable>
+
       <Text className='mx-4 mt-8 mb-4 text-4xl font-light text-neutral-800'>
-        Books
+        Welcome, {authState.username.split(' ')[0]}
       </Text>
 
       {!loadingBooks && <ScrollView className="mx-auto flex-1 bg-gray-100">
         {chunkArray(books, 2).map((row, rowIndex) => (
-          <View key={rowIndex} className="flex-row justify-between p-4">
+          <View 
+            key={rowIndex} 
+            className="flex-row justify-between p-4"
+          >
             {row.map((book, itemIndex) => (
               <View key={itemIndex} className='-mb-3'>
                 <BookButton 

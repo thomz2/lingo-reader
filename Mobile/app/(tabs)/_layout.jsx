@@ -18,10 +18,10 @@ export default function TabLayout() {
         tabBarStyle: {
           backgroundColor: '#a78bfa', // violeta claro
         },
-        headerShown: false
+        headerShown: false,
       }}
     >
-      <Tabs.Screen 
+      {/* <Tabs.Screen 
         name="profile" // the .jsx file
         options={{ 
           title: 'Home', // the name that appears
@@ -33,7 +33,7 @@ export default function TabLayout() {
             />
           ),
         }} 
-      />
+      /> */}
       <Tabs.Screen 
         name="books" 
         options={{ 

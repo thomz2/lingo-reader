@@ -25,7 +25,7 @@ const ConfigIndex = () => {
       <Pressable
         className='absolute left-4 top-4 z-10'
         onPress={() => {
-          router.replace('/(tabs)/profile');
+          router.replace('/(tabs)/books');
         }}
       >
         <Ionicons name="arrow-back" size={36} color="#a78bfa" />  
