@@ -58,7 +58,7 @@ const Books = () => {
   };
   
   return (    
-    <View className='relative h-full w-full'>
+    <View className='relative h-full w-full bg-white'>
       <TouchableOpacity 
         className='z-50 absolute bottom-6 right-6' 
         onPress={async () => {      
@@ -124,7 +124,7 @@ const Books = () => {
         Welcome, {authState.username.split(' ')[0]}
       </Text>
 
-      {!loadingBooks && <ScrollView className="mx-auto flex-1 bg-gray-100">
+      {!loadingBooks && <ScrollView className="mx-auto flex-1 bg-white">
         {chunkArray(books, 2).map((row, rowIndex) => (
           <View 
             key={rowIndex} 

@@ -326,6 +326,8 @@ export const AuthProvider = ({ children }) => {
     const getFlashCardsFromDeck = async (userEmail, deckId) => {
         try {
             const deck = await getDeck(userEmail, deckId);
+            console.log("DECK:", deck)
+            console.log("FLASHCARDS:", deck.flashcards)
             return deck ? deck.flashcards : [];
         } catch (e) {
             console.error('Erro ao obter os flashcards do deck:', e);

@@ -34,7 +34,7 @@ export default function BookReader() {
 
     const router = useRouter();
 
-    const { authState, onGetBookByIdAndEmail, getDecks } = useAuth();
+    const { authState, onGetBookByIdAndEmail, getDecks, putFlashCardOnDeck } = useAuth();
     
     if (!authState || !authState.authenticated) {
         return (<Redirect href={'/auth/login'} />);
@@ -156,7 +156,7 @@ export default function BookReader() {
                         <Ionicons name="close" size={50} color="red" className='mr-6' />
                     </TouchableOpacity>
 
-                    <View className='p-3 flex bg-white shadow-2xl shadow-black aspect-[3/4] rounded-lg overflow-hidden'>
+                    <View className='p-3 flex bg-white shadow-2xl shadow-black w-[90%]  rounded-lg overflow-hidden'>
                     {/* <ScrollView className='p-5' contentContainerStyle={{ paddingBottom: 30 }}> */}
                         <Text className='font-light mb-1'>Last selected (Front)</Text>
                         <View className='h-24'> {/* Se quiser mudar o tamanho da caixa que aparece a seleção, é aqui */}
@@ -235,7 +235,19 @@ export default function BookReader() {
                                 <ActivityIndicator />}
                             </View>
                             <TouchableOpacity
-                                onPress={() => (console.log("Alo"))} 
+                                onPress={() => {
+                                    const saveFlashcard = async () => {
+                                        await putFlashCardOnDeck(authState.email, selectedDeck, {
+                                            id: selectedText,
+                                            question: selectedText,
+                                            answer: back
+                                        });
+                                        console.log("Alo");
+                                        setMenuAparece(0);
+                                        // TODO: colocar componente que desaparece depois que leva para a rota de decks do caba
+                                    }
+                                    saveFlashcard();
+                                }} 
                                 className='mt-2 w-full flex justify-center items-center p-4 bg-violet-400 rounded-xl'
                             >
                                 <Text className='text-white font-semibold text-lg'>
