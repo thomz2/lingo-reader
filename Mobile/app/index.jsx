@@ -41,7 +41,7 @@ const index = () => {
     }
 
     return (
-        <Redirect href={'(tabs)/profile'} />
+        <Redirect href={'(tabs)/books'} />
     );
 }
 

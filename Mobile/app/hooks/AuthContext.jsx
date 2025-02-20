@@ -222,28 +222,118 @@ export const AuthProvider = ({ children }) => {
         } catch (error) {
           return { error: true, msg: "Error fetching the book: " + error.message };
         }
-      };
+    };
 
-    // const addGlobalBook = async (bookId) => {
-    //     try {
-    //         const globalBooks = JSON.parse(await AsyncStorage.getItem('globalBooks')) || [];
-    //         globalBooks.push(bookId);
-    //         await AsyncStorage.setItem('globalBooks', JSON.stringify(globalBooks));
-    //         console.log(`Livro ${bookId} adicionado aos livros globais`);
-    //     } catch (error) {
-    //         console.error('Erro ao adicionar livro global:', error);
-    //     }
-    // };
-
-    // const getGlobalBooks = async () => {
-    //     try {
-    //         const globalBooks = JSON.parse(await AsyncStorage.getItem('globalBooks')) || [];
-    //         return globalBooks;
-    //     } catch (error) {
-    //         console.error('Erro ao recuperar livros globais:', error);
-    //         return [];
-    //     }
-    // };
+    // Gera um novo ID para um deck com base na quantidade de decks do usuário
+    const getNewDeckId = async (userEmail) => {
+        try {
+            const decks = await getDecks(userEmail);
+            return decks.length; // O próximo ID é igual ao número de decks existentes
+        } catch (e) {
+            console.error('Erro ao gerar novo ID do deck:', e);
+            return 0; // Se houver um erro, começa do ID 0
+        }
+    };
+    
+    // Cria um novo deck
+    const createDeck = async (userEmail, deckName) => {
+        const deckId = await getNewDeckId(userEmail);
+        const newDeck = {
+            id: deckId,
+            title: deckName,
+            flashcards: [],
+        };
+    
+        try {
+            let decks = await getDecks(userEmail);
+            decks.push(newDeck);
+            const jsonValue = JSON.stringify(decks);
+            await AsyncStorage.setItem(`${userEmail}.decks`, jsonValue);
+            console.log('Deck criado com sucesso!');
+        } catch (e) {
+            console.error('Erro ao criar o deck:', e);
+        }
+    };
+    
+    // Deleta um deck
+    const deleteDeck = async (userEmail, deckId) => {
+        try {
+            let decks = await getDecks(userEmail);
+            decks = decks.filter(deck => deck.id !== deckId);
+            const jsonValue = JSON.stringify(decks);
+            await AsyncStorage.setItem(`${userEmail}.decks`, jsonValue);
+            console.log('Deck deletado com sucesso!');
+        } catch (e) {
+            console.error('Erro ao deletar o deck:', e);
+        }
+    };
+    
+    // Obtém todos os decks do usuário
+    const getDecks = async (userEmail) => {
+        try {
+            const jsonValue = await AsyncStorage.getItem(`${userEmail}.decks`);
+            return jsonValue != null ? JSON.parse(jsonValue) : [];
+        } catch (e) {
+            console.error('Erro ao obter os decks:', e);
+            return [];
+        }
+    };
+    
+    // Obtém um deck específico
+    const getDeck = async (userEmail, deckId) => {
+        try {
+            const decks = await getDecks(userEmail);
+            return decks.find(deck => deck.id === deckId) || null;
+        } catch (e) {
+            console.error('Erro ao obter o deck:', e);
+            return null;
+        }
+    };
+    
+    // Adiciona um flashcard a um deck
+    const putFlashCardOnDeck = async (userEmail, deckId, flashcard) => {
+        try {
+            let decks = await getDecks(userEmail);
+            const deckIndex = decks.findIndex(deck => deck.id === deckId);
+        if (deckIndex !== -1) {
+            decks[deckIndex].flashcards.push(flashcard);
+            const jsonValue = JSON.stringify(decks);
+            await AsyncStorage.setItem(`${userEmail}.decks`, jsonValue);
+            console.log('Flashcard adicionado com sucesso!');
+        }
+        } catch (e) {
+            console.error('Erro ao adicionar o flashcard ao deck:', e);
+        }
+    };
+    
+    // Deleta um flashcard de um deck
+    const deleteFlashCardFromDeck = async (userEmail, deckId, flashcardId) => {
+        try {
+            let decks = await getDecks(userEmail);
+            const deckIndex = decks.findIndex(deck => deck.id === deckId);
+            if (deckIndex !== -1) {
+                decks[deckIndex].flashcards = decks[deckIndex].flashcards.filter(fc => fc.id !== flashcardId);
+                const jsonValue = JSON.stringify(decks);
+                await AsyncStorage.setItem(`${userEmail}.decks`, jsonValue);
+                console.log('Flashcard deletado com sucesso!');
+            }
+        } catch (e) {
+            console.error('Erro ao deletar o flashcard do deck:', e);
+        }
+    };
+    
+    // Obtém todos os flashcards de um deck
+    const getFlashCardsFromDeck = async (userEmail, deckId) => {
+        try {
+            const deck = await getDeck(userEmail, deckId);
+            console.log("DECK:", deck)
+            console.log("FLASHCARDS:", deck.flashcards)
+            return deck ? deck.flashcards : [];
+        } catch (e) {
+            console.error('Erro ao obter os flashcards do deck:', e);
+            return [];
+        }
+    };
 
     const value = useMemo(() => ({
         onRegister: register,
@@ -254,6 +344,9 @@ export const AuthProvider = ({ children }) => {
         onGetUserBooks: getUserBooks,
         onGetNewId: getNewId,
         onGetBookByIdAndEmail: getBookByIdAndEmail,
+
+        createDeck, deleteDeck, getDecks, putFlashCardOnDeck, deleteFlashCardFromDeck, getFlashCardsFromDeck,
+        
         authState
     }), [authState]);
 

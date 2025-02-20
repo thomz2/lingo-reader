@@ -16,7 +16,7 @@ const Login = () => {
   const router = useRouter();
 
   if (authState && authState.authenticated) {
-    return (<Redirect href={'/(tabs)/profile'} />);
+    return (<Redirect href={'/(tabs)/books'} />);
   }
 
   return (
@@ -65,7 +65,7 @@ const Login = () => {
               return;
             }
              
-            router.replace('/(tabs)/profile');
+            router.replace('/(tabs)/books');
           }}
           className='mt-8 w-full flex justify-center items-center p-4 bg-violet-400 rounded-xl'
         >
