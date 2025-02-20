@@ -8,15 +8,45 @@ COISAS QUE TENHO QUE PEGAR AQUI AINDA E MUDAR NA ESTRUTURA DE DADOS DO LIVRO
 
 */
 
+import util from 'util'
+
 
 import { View, Text, SafeAreaView, ActivityIndicator } from 'react-native'
-import React, { useEffect, useState } from 'react'
+import React, { forwardRef, useEffect, useRef, useState } from 'react'
 
 import { Reader, useReader, ReaderProvider } from '@epubjs-react-native/core';
 import { useFileSystem } from '@epubjs-react-native/expo-file-system'; // for Expo project
 
 import { Redirect, useLocalSearchParams } from 'expo-router';
 import { useAuth } from '../hooks/AuthContext';
+import dicionarioInglesAlemao from '../../assets/english_german.json'
+
+class DictionaryHandler {
+
+    constructor(dictionary){
+        this.palavras = new Set();
+
+        this.traducoes = {};
+
+        this.dictionary = dictionary;
+    }
+
+    put(palavra){
+
+        if(this.palavras.has(palavra)) console.log("palavra repetida");
+
+        if(this.dictionary[palavra]){
+            this.traducoes[palavra] = this.dictionary[palavra]
+        }
+        else{
+            this.traducoes[palavra] = "a ser traduzida..."
+        }
+
+        this.palavras.add(palavra);
+    }
+}
+
+const dicionario = new DictionaryHandler(dicionarioInglesAlemao);
 
 export default function BookReader() {
 
@@ -70,6 +100,7 @@ export default function BookReader() {
 
     return (
         <ReaderProvider>
+            
             <SafeAreaView style={{ flex: 1 }}>
 
                 {menuAparece > 0 && <View className=''>
@@ -83,8 +114,10 @@ export default function BookReader() {
                     // Text selection feature
                     enableSelection={true}
                     onSelected={(selectedText) => {
+
+                        dicionario.put(selectedText);
                         setMenuAparece(2)
-                        console.log('selecionou')
+                        console.log(dicionario.traducoes, dicionario.palavras)
                     }}
 
                     onSingleTap={() => {
