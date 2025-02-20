@@ -22,31 +22,6 @@ import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import { useAuth } from '../hooks/AuthContext';
 import dicionarioInglesAlemao from '../../assets/english_german.json'
 
-class DictionaryHandler {
-
-    constructor(dictionary){
-        this.palavras = new Set();
-
-        this.traducoes = {};
-
-        this.dictionary = dictionary;
-    }
-
-    put(palavra){
-
-        if(this.palavras.has(palavra)) console.log("palavra repetida");
-
-        if(this.dictionary[palavra]){
-            this.traducoes[palavra] = this.dictionary[palavra]
-        }
-        else{
-            this.traducoes[palavra] = "a ser traduzida..."
-        }
-
-        this.palavras.add(palavra);
-    }
-}
-
 const dicionario = new DictionaryHandler(dicionarioInglesAlemao);
 
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
@@ -56,6 +31,7 @@ import Entypo from '@expo/vector-icons/Entypo';
 import { Picker } from "@react-native-picker/picker";
 
 import { getBackCardFromText } from "../services/backCardGenerator"
+import { DictionaryHandler } from './dictionary';
 
 
 export default function BookReader() {
@@ -157,6 +133,20 @@ export default function BookReader() {
         });
 
 
+    const defaultSaveNewCard = async () => {
+
+        dicionario.put(selectedText);
+
+        await putFlashCardOnDeck(authState.email, selectedDeck, {
+            id: selectedText,
+            question: selectedText,
+            answer: dicionario.getTranslation(selectedText)
+        });
+        console.log(dicionario.traducoes);
+        // TODO: colocar componente que desaparece depois que leva para a rota de decks do caba
+    }
+
+
     return (
         <ReaderProvider>
             <SafeAreaView className='flex-1 relative'>
@@ -169,6 +159,9 @@ export default function BookReader() {
                         <Entypo name="home" size={36} color="white" />
                     </TouchableOpacity>
                     {selectedText != '' && <TouchableOpacity onPress={() => setMenuAparece(2)}>
+                        <MaterialIcons name="edit-note" size={54} color="white" />
+                    </TouchableOpacity>}
+                    {selectedText != '' && <TouchableOpacity onPress={() => defaultSaveNewCard()}>
                         <MaterialIcons name="edit-note" size={54} color="white" />
                     </TouchableOpacity>}
                 </View>}
@@ -219,7 +212,7 @@ export default function BookReader() {
                             onPress={() => {
                                 const getBackCard = async () => {
                                     setCardGenerationState(1);
-                                    const backText = await getBackCardFromText(selectedText, selectedLanguage);
+                                    const backText = await getBackCardFromText(selectedText, selectedLanguage, dicionario);
                                     setBack(backText);
                                     setCardGenerationState(2);
                                 }
@@ -302,7 +295,9 @@ export default function BookReader() {
                         onSelected={(selectedText) => {
                             setMenuAparece(1)
                             console.log('TEXTO SELECIONADO:', selectedText);
-                            setSelectedText(selectedText.replace(/[\t\n\r\f\v]+/g, " ").trim());
+
+                            const texto = selectedText.replace(/[\t\n\r\f\v]+/g, " ").trim();
+                            setSelectedText(texto);
                         }}
 
                         onLocationChange={(totalLocations, currentLocation) => {
