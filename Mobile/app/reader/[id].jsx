@@ -67,7 +67,7 @@ export default function BookReader() {
         }
 
         getBook();
-    });
+    }, []);
 
     // const { goToLocation } = useReader();
 
@@ -95,7 +95,7 @@ export default function BookReader() {
             ]);
         }
         getAndSetDecks();
-    });
+    }, []);
 
     const [selectedDeck, setSelectedDeck] = useState(-1);
 
@@ -155,10 +155,12 @@ export default function BookReader() {
                     >
                         <Ionicons name="close" size={50} color="red" className='mr-6' />
                     </TouchableOpacity>
-                    <View className='p-3 flex bg-white shadow-2xl shadow-black aspect-[3/4] h-[69%] rounded-lg overflow-hidden'>
+
+                    <View className='p-3 flex bg-white shadow-2xl shadow-black aspect-[3/4] rounded-lg overflow-hidden'>
+                    {/* <ScrollView className='p-5' contentContainerStyle={{ paddingBottom: 30 }}> */}
                         <Text className='font-light mb-1'>Last selected (Front)</Text>
-                        <View className='h-20'> {/* Se quiser mudar o tamanho da caixa que aparece a seleção, é aqui */}
-                            <ScrollView className='border-2 rounded-md border-gray-200 bg-neutral-100 p-3'>
+                        <View className='h-24'> {/* Se quiser mudar o tamanho da caixa que aparece a seleção, é aqui */}
+                            <ScrollView contentContainerStyle={{ paddingBottom: 30 }} className='border-2 rounded-md border-gray-200 bg-neutral-100 p-3'>
                                 <Text>{selectedText}</Text>
                             </ScrollView>
                         </View>
@@ -206,8 +208,8 @@ export default function BookReader() {
                         {cardGenerationState == 2 && <View className='flex mt-auto justify-end'>
                             <View className='w-full mt-2'>
                                 <Text className='font-light mb-1'>Translated text (Back)</Text>
-                                <View className='h-20'>
-                                    <ScrollView className='border-2 rounded-md border-gray-200 bg-neutral-100 p-3'>
+                                <View className='h-24'>
+                                    <ScrollView contentContainerStyle={{ paddingBottom: 30 }} className='border-2 rounded-md border-gray-200 bg-neutral-100 p-3'>
                                         <Text>{back}</Text>
                                     </ScrollView>
                                 </View>
@@ -244,7 +246,7 @@ export default function BookReader() {
                         }
 
                         {/* para ultima view, so fazer um flex w-full com justify-end */}
-
+                    {/* </ScrollView> */}
                     </View>
 
                     
