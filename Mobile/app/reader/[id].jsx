@@ -9,13 +9,13 @@ COISAS QUE TENHO QUE PEGAR AQUI AINDA E MUDAR NA ESTRUTURA DE DADOS DO LIVRO
 */
 
 
-import { View, Text, SafeAreaView, ActivityIndicator, TouchableOpacity, ScrollView } from 'react-native'
+import { View, Text, SafeAreaView, ActivityIndicator, TouchableOpacity, ScrollView, Keyboard, InteractionManager  } from 'react-native'
 import React, { useEffect, useState } from 'react'
 
 import { Reader, useReader, ReaderProvider } from '@epubjs-react-native/core';
 import { useFileSystem } from '@epubjs-react-native/expo-file-system'; // for Expo project
 
-import { Redirect, useLocalSearchParams } from 'expo-router';
+import { Redirect, useLocalSearchParams, useRouter } from 'expo-router';
 
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 
@@ -23,10 +23,18 @@ import { useAuth } from '../hooks/AuthContext';
 
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import Ionicons from '@expo/vector-icons/Ionicons';
+import Entypo from '@expo/vector-icons/Entypo';
+
+import { Picker } from "@react-native-picker/picker";
+
+import { getBackCardFromText } from "../services/backCardGenerator"
+
 
 export default function BookReader() {
 
-    const { authState, onGetBookByIdAndEmail } = useAuth();
+    const router = useRouter();
+
+    const { authState, onGetBookByIdAndEmail, getDecks } = useAuth();
     
     if (!authState || !authState.authenticated) {
         return (<Redirect href={'/auth/login'} />);
@@ -65,6 +73,38 @@ export default function BookReader() {
 
     const [menuAparece, setMenuAparece] = useState(0);
 
+    const languages = [
+        { code: "placeholder", label: "Select language", disabled: true },
+        { code: "us", label: "English" },
+        { code: "fr", label: "Français" },
+        { code: "es", label: "Español" },
+        { code: "de", label: "Deutsch" },
+        { code: "br", label: "Português" },
+    ];
+
+    const [selectedLanguage, setSelectedLanguage] = useState("placeholder");
+
+    const [decks, setDecks] = useState(null);
+
+    useEffect(() => {
+        const getAndSetDecks = async () => {
+            const userDecks = await getDecks(authState.email);
+            setDecks([
+                { id: -1, title: "Select deck", disabled: true },
+                ...userDecks
+            ]);
+        }
+        getAndSetDecks();
+    });
+
+    const [selectedDeck, setSelectedDeck] = useState(-1);
+
+    // 0 para nao clicou em gerar
+    // 1 para carregando
+    // 2 para carregamento finalizado
+    const [cardGenerationState, setCardGenerationState] = useState(0);
+    const [back, setBack] = useState("lorem ipsum");
+      
     if (loading) {
         return <ActivityIndicator />
     }
@@ -95,27 +135,119 @@ export default function BookReader() {
 
                 {menuAparece == 1 && <View className='flex flex-row items-center bg-violet-400 absolute bottom-4 p-1 self-center z-10 rounded-xl'>
                     <TouchableOpacity onPress={() => setMenuAparece(0)}>
-                        <Ionicons name="close" size={50} color="red" className='mr-6' />
+                        <Ionicons name="close" size={50} color="red" className='mr-3' />
+                    </TouchableOpacity>
+                    <TouchableOpacity className='mr-4 mb-1' onPress={() => router.replace('/(tabs)/books')}>
+                        <Entypo name="home" size={36} color="white" />
                     </TouchableOpacity>
                     {selectedText != '' && <TouchableOpacity onPress={() => setMenuAparece(2)}>
                         <MaterialIcons name="edit-note" size={54} color="white" />
                     </TouchableOpacity>}
-                    <MaterialIcons name="drag-indicator" size={50} color="white" />
                 </View>}
 
                 {menuAparece == 2 && <View className='flex items-center justify-center absolute h-screen w-screen z-10 bg-black/55'>
-                    <TouchableOpacity className='top-3 -right-1 absolute' onPress={() => setMenuAparece(0)}>
+                    <TouchableOpacity 
+                        className='top-3 -right-1 absolute' 
+                        onPress={() => {
+                            setMenuAparece(0);
+                            setCardGenerationState(0);
+                        }}
+                    >
                         <Ionicons name="close" size={50} color="red" className='mr-6' />
                     </TouchableOpacity>
-                    <View className='p-3 flex bg-white shadow-2xl shadow-black aspect-[3/2] h-[28%] rounded-lg overflow-hidden'>
-                        <Text className='font-light mb-1'>Last selected</Text>
+                    <View className='p-3 flex bg-white shadow-2xl shadow-black aspect-[3/4] h-[69%] rounded-lg overflow-hidden'>
+                        <Text className='font-light mb-1'>Last selected (Front)</Text>
                         <View className='h-20'> {/* Se quiser mudar o tamanho da caixa que aparece a seleção, é aqui */}
                             <ScrollView className='border-2 rounded-md border-gray-200 bg-neutral-100 p-3'>
                                 <Text>{selectedText}</Text>
                             </ScrollView>
                         </View>
+                    
+                        <View className='w-full flex flex-row mt-2 justify-between'>
+                            <View className="w-full border border-gray-300 rounded-lg overflow-hidden">
+                                <Picker
+                                    selectedValue={selectedLanguage}
+                                    onValueChange={(itemValue) => setSelectedLanguage(itemValue)}
+                                    className="bg-white"
+                                    placeholder='select language'
+                                >
+                                    {languages.map((lang) => (
+                                        <Picker.Item
+                                            key={lang.code}
+                                            label={lang.label}
+                                            value={lang.code}
+                                            enabled={!lang.disabled}
+                                        />
+                                    ))}
+                                </Picker>
+                            </View>
+
+                            
+                        </View>
+
+                        <TouchableOpacity
+                            onPress={() => {
+                                const getBackCard = async () => {
+                                    setCardGenerationState(1);
+                                    const backText = await getBackCardFromText(selectedText, selectedLanguage);
+                                    setBack(backText);
+                                    setCardGenerationState(2);
+                                }
+                                getBackCard();
+                            }} 
+                            className='mt-2 w-full flex justify-center items-center p-4 bg-violet-400 rounded-xl'
+                        >
+                            <Text className='text-white font-semibold text-lg'>
+                                Generate Card Back
+                            </Text>
+                        </TouchableOpacity>
+
+                        {cardGenerationState == 1 && <ActivityIndicator className='w-full p-4 mt-2'/>}
+                        {cardGenerationState == 2 && <View className='flex mt-auto justify-end'>
+                            <View className='w-full mt-2'>
+                                <Text className='font-light mb-1'>Translated text (Back)</Text>
+                                <View className='h-20'>
+                                    <ScrollView className='border-2 rounded-md border-gray-200 bg-neutral-100 p-3'>
+                                        <Text>{back}</Text>
+                                    </ScrollView>
+                                </View>
+                            </View>
+                            <View className='mt-2 w-full border border-gray-300 rounded-lg overflow-hidden'>
+                                {decks != null ? <Picker
+                                    selectedValue={selectedDeck}
+                                    onValueChange={
+                                        (itemValue) => setSelectedDeck(itemValue)
+                                    }
+                                    className="bg-white"
+                                >
+                                    {decks.map((deck) => (
+                                        <Picker.Item
+                                            key={deck.id}
+                                            label={deck.title}
+                                            value={deck.id}
+                                            enabled={!deck.disabled}
+                                        />
+                                    ))}
+                                </Picker>
+                                :
+                                <ActivityIndicator />}
+                            </View>
+                            <TouchableOpacity
+                                onPress={() => (console.log("Alo"))} 
+                                className='mt-2 w-full flex justify-center items-center p-4 bg-violet-400 rounded-xl'
+                            >
+                                <Text className='text-white font-semibold text-lg'>
+                                    Save flashcard
+                                </Text>
+                            </TouchableOpacity>
+                        </View>
+                        }
+
+                        {/* para ultima view, so fazer um flex w-full com justify-end */}
+
                     </View>
 
+                    
 
                 </View>}
 
@@ -124,13 +256,6 @@ export default function BookReader() {
                         src={src} // "https://s3.amazonaws.com/moby-dick/OPS/package.opf"
                         fileSystem={useFileSystem}
 
-                        // onReady={() => {
-                        //     if (actualPage != 0) {
-                        //         console.log('OH, VAI PRA PAGINA', actualPage);
-                        //         goToLocation(actualPage['end']['cfi']);
-                        //     }
-                        // }}
-                        
                         enableSelection={true}
                         onSelected={(selectedText) => {
                             setMenuAparece(1)
