@@ -27,7 +27,7 @@ export default function SaveNotification({ trigger }) {
   if (!showNotification) return null;
 
   return (
-    <Animated.View style={[styles.notification, { opacity: fadeAnim }]}>
+    <Animated.View >
       <Text style={styles.text}>Salvo com sucesso!</Text>
     </Animated.View>
   );
@@ -38,7 +38,7 @@ const styles = StyleSheet.create({
     position: "absolute",
     top: 50,
     left: "50%",
-    // transform: [{ translateX: -100 }],
+    transform: [{ translateX: -100 }],
     backgroundColor: "green",
     padding: 10,
     borderRadius: 8,
