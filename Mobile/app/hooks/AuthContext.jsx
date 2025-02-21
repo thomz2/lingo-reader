@@ -1,5 +1,8 @@
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as FileSystem from 'expo-file-system';
+import * as Sharing from 'expo-sharing'
+
 
 const AuthContext = createContext({});
 
@@ -335,6 +338,44 @@ export const AuthProvider = ({ children }) => {
         }
     };
 
+    const exportFlashcardsToAnki = async (userEmail, deckId) => {
+        try {
+            // Fetch flashcards from the deck
+            const flashcards = await getFlashCardsFromDeck(userEmail, deckId);
+
+            // Create the content for the Anki-compatible file (TSV format)
+            let ankiContent = '';
+            flashcards.forEach(flashcard => {
+                ankiContent += `${flashcard.front}\t${flashcard.back}\n`; // Tab-separated values
+            });
+
+            // Define the file path
+            const fileName = `deck_${deckId}.txt`;
+            const fileUri = `${FileSystem.documentDirectory}${fileName}`;
+
+            console.log('File created successfully:', fileUri);
+
+            // Write the content to the file
+            await FileSystem.writeAsStringAsync(fileUri, ankiContent, {
+                encoding: FileSystem.EncodingType.UTF8,
+            });
+            if (await Sharing.isAvailableAsync()) {
+                await Sharing.shareAsync(fileUri, {
+                    mimeType: 'text/plain', // Tipo MIME para arquivos de texto
+                    dialogTitle: 'Compartilhar Arquivo',
+                    UTI: 'public.plain-text', // Especificação para iOS
+                });
+            } else {
+                console.log('Compartilhamento não disponível nesta plataforma.');
+            }
+
+
+            console.log('Flashcards exported successfully!');
+        } catch (error) {
+            console.error('Error exporting flashcards:', error);
+        }
+    }
+
     const value = useMemo(() => ({
         onRegister: register,
         onLogin: login,
@@ -345,7 +386,7 @@ export const AuthProvider = ({ children }) => {
         onGetNewId: getNewId,
         onGetBookByIdAndEmail: getBookByIdAndEmail,
 
-        createDeck, deleteDeck, getDecks, putFlashCardOnDeck, deleteFlashCardFromDeck, getFlashCardsFromDeck,
+        createDeck, deleteDeck, getDecks, putFlashCardOnDeck, deleteFlashCardFromDeck, getFlashCardsFromDeck, exportFlashcardsToAnki,
         
         authState
     }), [authState]);

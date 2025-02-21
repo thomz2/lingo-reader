@@ -22,7 +22,6 @@ import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import { useAuth } from '../hooks/AuthContext';
 import dicionarioInglesAlemao from '../../assets/english_german.json'
 
-const dicionario = new DictionaryHandler(dicionarioInglesAlemao);
 
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import Ionicons from '@expo/vector-icons/Ionicons';
@@ -38,9 +37,11 @@ import SaveNotification from '../components/SaveNotification';
 
 export default function BookReader() {
 
+    const dicionario = new DictionaryHandler(dicionarioInglesAlemao);
+
     const router = useRouter();
 
-    const { authState, onGetBookByIdAndEmail, getDecks, putFlashCardOnDeck } = useAuth();
+    const { authState, onGetBookByIdAndEmail, getDecks, putFlashCardOnDeck, exportFlashcardsToAnki} = useAuth();
     
     if (!authState || !authState.authenticated) {
         return (<Redirect href={'/auth/login'} />);
@@ -141,14 +142,16 @@ export default function BookReader() {
 
     const defaultSaveNewCard = async () => {
 
-        dicionario.put(selectedText);
+        await dicionario.put(selectedText);
+
+        console.log(dicionario.traducoes)
 
         await putFlashCardOnDeck(authState.email, selectedDeck, {
             id: selectedText,
             question: selectedText,
             answer: dicionario.getTranslation(selectedText)
         });
-        console.log(dicionario.traducoes);
+        // console.log(dicionario.traducoes);
         // TODO: colocar componente que desaparece depois que leva para a rota de decks do caba
     }
 
@@ -170,6 +173,9 @@ export default function BookReader() {
                     {selectedText != '' && <TouchableOpacity onPress={() => setMenuAparece(2)}>
                         <MaterialIcons name="edit-note" size={54} color="white" />
                         {/* <SaveNotification trigger={trigger}></SaveNotification> */}
+                    </TouchableOpacity>}
+                    {selectedText != '' && <TouchableOpacity onPress={() => exportFlashcardsToAnki(authState.email, -1)}>
+                        <MaterialIcons name="edit-note" size={54} color="white" />
                     </TouchableOpacity>}
                 </View>}
 
