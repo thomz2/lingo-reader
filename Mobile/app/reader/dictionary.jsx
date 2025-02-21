@@ -30,7 +30,7 @@ class WordTrie {
 
     closestMatch(word, sufix = false) {
 
-        const multipleWords = word.split(/?:|,|-/)
+        const multipleWords = word.split(/(?:\:|,|-)/);
 
         console.log(multipleWords)
 
@@ -98,7 +98,7 @@ export class DictionaryHandler {
     async put(palavra) {
         palavra = palavra.toLowerCase();
 
-        console.log("TEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEESTE")
+        console.log("TEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEESTE", this.dictionary[palavra])
 
         if (this.palavras.has(palavra)) {
             console.log("palavra repetida");
@@ -109,19 +109,19 @@ export class DictionaryHandler {
         } else {
 
             const samePrefix = this.prefixes.closestMatch(palavra);
-            const sameSufix  = this.sufixes.closestMatch(palavra, true);
 
-            const similarWords = new Set(samePrefix.concat(sameSufix));
+            console.log(samePrefix, "prefixo")
 
-            const traducoesProximas = []
+            // const sameSufix  = this.sufixes.closestMatch(palavra, true);
 
-            let i = 0;
+            // const similarWords = new Set(samePrefix.concat(sameSufix));
 
-            similarWords.forEach(
-                (p) => traducoesProximas.push(`\n   ${i++}: ${p} -> ${this.dictionary[p]}, \n`)
-            );
+            const traducoesProximas = samePrefix.map(
+                (p,i) => `\n   ${i}: ${p} -> ${this.dictionary[p]}, \n`)
 
-            console.log(similarWords, traducoesProximas)
+            // let i = 0;
+
+            console.log(samePrefix, traducoesProximas)
 
 
             this.traducoes[palavra] = "palavra não encontrada, traduções mais próximas: \n   " + traducoesProximas;
