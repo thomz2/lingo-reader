@@ -27,6 +27,7 @@ const dicionario = new DictionaryHandler(dicionarioInglesAlemao);
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import Entypo from '@expo/vector-icons/Entypo';
+import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 
 import { Picker } from "@react-native-picker/picker";
 
@@ -163,10 +164,10 @@ export default function BookReader() {
                     <TouchableOpacity className='mr-4 mb-1' onPress={() => router.replace('/(tabs)/books')}>
                         <Entypo name="home" size={36} color="white" />
                     </TouchableOpacity>
-                    {selectedText != '' && <TouchableOpacity onPress={() => setMenuAparece(2)}>
-                        <MaterialIcons name="edit-note" size={54} color="white" />
+                    {selectedText != '' && <TouchableOpacity className='mr-3 mb-1' onPress={() => defaultSaveNewCard()}>
+                        <MaterialCommunityIcons name="note-plus-outline" size={40} color="white" />
                     </TouchableOpacity>}
-                    {selectedText != '' && <TouchableOpacity onPress={() => defaultSaveNewCard()}>
+                    {selectedText != '' && <TouchableOpacity onPress={() => setMenuAparece(2)}>
                         <MaterialIcons name="edit-note" size={54} color="white" />
                         <SaveNotification trigger={trigger}></SaveNotification>
                     </TouchableOpacity>}
