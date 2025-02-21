@@ -32,6 +32,7 @@ import { Picker } from "@react-native-picker/picker";
 
 import { getBackCardFromText } from "../services/backCardGenerator"
 import { DictionaryHandler } from './dictionary';
+import SaveNotification from '../components/SaveNotification';
 
 
 export default function BookReader() {
@@ -90,6 +91,9 @@ export default function BookReader() {
 
     const [decks, setDecks] = useState(null);
 
+    const [trigger, saveTrigger] = useState(false);
+
+
     useEffect(() => {
         const getAndSetDecks = async () => {
             const userDecks = await getDecks(authState.email);
@@ -133,6 +137,7 @@ export default function BookReader() {
         });
 
 
+
     const defaultSaveNewCard = async () => {
 
         dicionario.put(selectedText);
@@ -148,7 +153,7 @@ export default function BookReader() {
 
 
     return (
-        <ReaderProvider>
+        <ReaderProvider >
             <SafeAreaView className='flex-1 relative'>
 
                 {menuAparece == 1 && <View className='flex flex-row items-center bg-violet-400 absolute bottom-4 p-1 self-center z-10 rounded-xl'>
@@ -163,6 +168,7 @@ export default function BookReader() {
                     </TouchableOpacity>}
                     {selectedText != '' && <TouchableOpacity onPress={() => defaultSaveNewCard()}>
                         <MaterialIcons name="edit-note" size={54} color="white" />
+                        <SaveNotification trigger={trigger}></SaveNotification>
                     </TouchableOpacity>}
                 </View>}
 
@@ -290,6 +296,20 @@ export default function BookReader() {
                     <Reader
                         src={src} // "https://s3.amazonaws.com/moby-dick/OPS/package.opf"
                         fileSystem={useFileSystem}
+                        // allowPopups={false}
+                        allowScriptedContent={true}
+                        // injectedJavaScript={`
+                        //     // Adiciona a metatag para evitar tradução
+                        //     const meta = document.createElement('meta');
+                        //     meta.name = 'google';
+                        //     meta.content = 'notranslate';
+                        //     document.head.appendChild(meta);
+                        
+                        //     // Define o atributo translate="no" no elemento <html>
+                        //     document.querySelector('html').setAttribute('translate', 'no');
+                        
+                        //     true; // Necessário para o Android
+                        //   `}
 
                         enableSelection={true}
                         onSelected={(selectedText) => {

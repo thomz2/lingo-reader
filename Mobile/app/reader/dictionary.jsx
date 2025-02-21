@@ -1,14 +1,16 @@
 
 import AsyncStorage from '@react-native-async-storage/async-storage'; 
 
-class FrequentPatternTree {
+class WordTrie {
 
-    constructor(wordList) {
+    constructor(wordList, closeMatchLength = 3) {
         this.root = {};
 
         for (const word of wordList) {
             this.addWord(word.toLowerCase(), word.toLowerCase(), this.root);
         }
+
+        this.minLengthRatio = closeMatchLength;
     }
 
     addWord(word, segment, node) {
@@ -26,20 +28,37 @@ class FrequentPatternTree {
         this.addWord(word, segment.substring(1), node[letter]);
     }
 
-    closestMatch(word) {
+    closestMatch(word, sufix = false) {
+
+        const multipleWords = word.split(/?:|,|-/)
+
+        console.log(multipleWords)
+
+        if(multipleWords.length > 1) 
+            return multipleWords.flatMap(w => this.closestMatch(w));
+
+
         let node = this.root;
+
         let matchedLetters = [];
 
         for (const letter of word.toLowerCase()) {
+
             if (!node[letter]) break;
+
             node = node[letter];
+
             matchedLetters.push(letter);
         }
 
         const closestMatch = matchedLetters.join('');
-        if (!node) return closestMatch;
 
-        return this.getAllChildren(node).map(w => closestMatch + w);
+        if (!node) return [closestMatch];
+
+        console.log(closestMatch, closestMatch.length > this.minLengthRatio)
+
+        return this.getAllChildren(node).map(w => sufix ? w + closestMatch : closestMatch + w)
+                                        .filter(guess => closestMatch.length > this.minLengthRatio);
     }
 
     getAllChildren(node) {
@@ -59,7 +78,7 @@ class FrequentPatternTree {
 
 export class DictionaryHandler {
 
-    constructor(dictionary, language="de", storageKey="translations") {
+    constructor(dictionary, language="de", storageKey="translation") {
         this.palavras = new Set();
         this.traducoes = {};
         this.dictionary = dictionary;
@@ -70,7 +89,8 @@ export class DictionaryHandler {
         this.loadTranslations();
 
         // Atualizar radicais com as palavras atualmente no dicionário
-        this.radicals = new FrequentPatternTree(Object.keys(this.dictionary));
+        this.prefixes = new WordTrie(Object.keys(this.dictionary));
+        this.sufixes  = new WordTrie(Object.keys(this.dictionary), 5);
     }
 
     async put(palavra) {
@@ -83,9 +103,26 @@ export class DictionaryHandler {
         if (this.dictionary[palavra]) {
             this.traducoes[palavra] = this.dictionary[palavra];
         } else {
-            const palavrasProximas = this.radicals.closestMatch(palavra)
-                .map(p => `${p} : ${this.dictionary[p]}`);
-            this.traducoes[palavra] = "palavras mais proximas: " + palavrasProximas;
+
+            const samePrefix = this.prefixes.closestMatch(palavra);
+            const sameSufix  = this.sufixes.closestMatch(palavra, true);
+
+            const similarWords = new Set(samePrefix.concat(sameSufix));
+
+            const traducoesProximas = []
+
+            let i = 0;
+
+            similarWords.forEach(
+                (p) => traducoesProximas.push(`\n   ${i++}: ${p} -> ${this.dictionary[p]}, \n`)
+            );
+
+            console.log(similarWords, traducoesProximas)
+
+
+            this.traducoes[palavra] = "palavra não encontrada, traduções mais próximas: \n   " + traducoesProximas;
+
+            if(traducoesProximas.length == 0) this.traducoes[palavra] = "Não encontrada"
         }
 
         this.palavras.add(palavra);
