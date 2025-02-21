@@ -346,7 +346,7 @@ export const AuthProvider = ({ children }) => {
             // Create the content for the Anki-compatible file (TSV format)
             let ankiContent = '';
             flashcards.forEach(flashcard => {
-                ankiContent += `${flashcard.front}\t${flashcard.back}\n`; // Tab-separated values
+                ankiContent += `${flashcard.question}\t${flashcard.answer}\n`; // Tab-separated values
             });
 
             // Define the file path

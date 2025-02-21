@@ -16,9 +16,11 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useAuth } from '../hooks/AuthContext';
 import { Pressable } from 'react-native-gesture-handler';
 
+import Entypo from '@expo/vector-icons/Entypo';
+
 export default function Notes() {
 
-  const { authState, createDeck, getDecks, deleteDeck, getFlashCardsFromDeck, putFlashCardOnDeck, deleteFlashCardFromDeck } = useAuth();
+  const { authState, createDeck, getDecks, deleteDeck, exportFlashcardsToAnki } = useAuth();
 
   const [decks, setDecks] = useState([]);
   const [newDeckName, setNewDeckName] = useState('');
@@ -67,11 +69,22 @@ export default function Notes() {
       </TouchableOpacity>
       <ScrollView className="mt-4">
         {decks.map((deck) => (
-          <View key={deck.id} className="mb-4 p-4 border-2 border-gray-300 rounded-xl">
-            <Text className="text-2xl text-neutral-800 font-light">{deck.title}</Text>
+          <View key={deck.id} className="relative mb-4 p-4 border-2 border-gray-300 rounded-xl">
+            <TouchableOpacity
+              onPress={() => {
+                const exportToAnki = async () => {
+                  await exportFlashcardsToAnki(authState.email, deck.id);
+                }
+                exportToAnki();
+              }}
+              className='absolute z-[5] top-4 right-4'
+            >
+              <Entypo name="export" size={34} color="#a78bfa" />
+            </TouchableOpacity>
+            <Text className="text-4xl text-neutral-800 font-light">{deck.title}</Text>
             <TouchableOpacity 
               onPress={() => handleDeleteDeck(deck.id)}
-              className="mt-2 p-2 rounded-lg"
+              className="mt-4 p-2 rounded-lg"
               style={{ backgroundColor: "#ef4444" }}
             >
               <Text className="text-white text-center w-full">Delete Deck</Text>

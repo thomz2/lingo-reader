@@ -169,16 +169,24 @@ export default function BookReader() {
                     <TouchableOpacity className='mr-4 mb-1' onPress={() => router.replace('/(tabs)/books')}>
                         <Entypo name="home" size={36} color="white" />
                     </TouchableOpacity>
-                    {selectedText != '' && <TouchableOpacity className='mr-3 mb-1' onPress={() => defaultSaveNewCard()}>
+                    {selectedText != '' && <TouchableOpacity 
+                        className='mr-3 mb-1' 
+                        onPress={() => {
+                            const callSaveCard = async () => {
+                                await defaultSaveNewCard();
+                            }
+                            callSaveCard();
+                        }}
+                    >
                         <MaterialCommunityIcons name="note-plus-outline" size={40} color="white" />
                     </TouchableOpacity>}
                     {selectedText != '' && <TouchableOpacity onPress={() => setMenuAparece(2)}>
                         <MaterialIcons name="edit-note" size={54} color="white" />
                         {/* <SaveNotification trigger={trigger}></SaveNotification> */}
                     </TouchableOpacity>}
-                    {selectedText != '' && <TouchableOpacity onPress={() => exportFlashcardsToAnki(authState.email, 0)}>
-                        <MaterialIcons name="edit-note" size={54} color="white" />
-                    </TouchableOpacity>}
+                    {/* {selectedText != '' && <TouchableOpacity onPress={() => exportFlashcardsToAnki(authState.email, 0)}>
+                        <MaterialIcons name="export" size={54} color="white" />
+                    </TouchableOpacity>} */}
                 </View>}
 
                 {menuAparece == 2 && <View className='flex items-center justify-center absolute h-screen w-screen z-10 bg-black/55'>
