@@ -34,10 +34,10 @@ import { getBackCardFromText } from "../services/backCardGenerator"
 import { DictionaryHandler } from './dictionary';
 import SaveNotification from '../components/SaveNotification';
 
+const dicionario = new DictionaryHandler(dicionarioInglesAlemao);
 
 export default function BookReader() {
 
-    const dicionario = new DictionaryHandler(dicionarioInglesAlemao);
 
     const router = useRouter();
 
@@ -142,16 +142,18 @@ export default function BookReader() {
 
     const defaultSaveNewCard = async () => {
 
+        console.log("Chamando put...");
         await dicionario.put(selectedText);
+        console.log("put foi chamado!");
 
-        console.log(dicionario.traducoes)
+        console.log("teste")
 
         await putFlashCardOnDeck(authState.email, selectedDeck, {
             id: selectedText,
             question: selectedText,
             answer: dicionario.getTranslation(selectedText)
         });
-        // console.log(dicionario.traducoes);
+        console.log(dicionario.traducoes);
         // TODO: colocar componente que desaparece depois que leva para a rota de decks do caba
     }
 
@@ -174,7 +176,7 @@ export default function BookReader() {
                         <MaterialIcons name="edit-note" size={54} color="white" />
                         {/* <SaveNotification trigger={trigger}></SaveNotification> */}
                     </TouchableOpacity>}
-                    {selectedText != '' && <TouchableOpacity onPress={() => exportFlashcardsToAnki(authState.email, -1)}>
+                    {selectedText != '' && <TouchableOpacity onPress={() => exportFlashcardsToAnki(authState.email, 0)}>
                         <MaterialIcons name="edit-note" size={54} color="white" />
                     </TouchableOpacity>}
                 </View>}

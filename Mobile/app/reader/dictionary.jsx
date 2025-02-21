@@ -88,13 +88,17 @@ export class DictionaryHandler {
         // Carregar traduções do armazenamento local
         this.loadTranslations();
 
+        const reverseString = word => word.split('').reverse().join('');
+
         // Atualizar radicais com as palavras atualmente no dicionário
         this.prefixes = new WordTrie(Object.keys(this.dictionary));
-        this.sufixes  = new WordTrie(Object.keys(this.dictionary), 5);
+        this.sufixes  = new WordTrie(Object.keys(this.dictionary).map(reverseString), 5);
     }
 
     async put(palavra) {
         palavra = palavra.toLowerCase();
+
+        console.log("TEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEESTE")
 
         if (this.palavras.has(palavra)) {
             console.log("palavra repetida");
