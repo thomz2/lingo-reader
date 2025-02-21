@@ -169,7 +169,7 @@ export default function BookReader() {
                     </TouchableOpacity>}
                     {selectedText != '' && <TouchableOpacity onPress={() => setMenuAparece(2)}>
                         <MaterialIcons name="edit-note" size={54} color="white" />
-                        <SaveNotification trigger={trigger}></SaveNotification>
+                        {/* <SaveNotification trigger={trigger}></SaveNotification> */}
                     </TouchableOpacity>}
                 </View>}
 

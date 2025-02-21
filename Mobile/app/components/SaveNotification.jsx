@@ -27,9 +27,9 @@ export default function SaveNotification({ trigger }) {
   if (!showNotification) return null;
 
   return (
-    <Animated.View >
+    // <Animated.View >
       <Text style={styles.text}>Salvo com sucesso!</Text>
-    </Animated.View>
+    // </Animated.View>
   );
 }
 
