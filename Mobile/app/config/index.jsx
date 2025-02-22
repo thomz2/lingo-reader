@@ -3,6 +3,7 @@ import React, { useState } from 'react'
 import { Redirect, useRouter } from 'expo-router';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { useAuth } from '../hooks/AuthContext';
+import '../../global.css'
 
 const ConfigIndex = () => {
 
@@ -31,7 +32,7 @@ const ConfigIndex = () => {
         <Ionicons name="arrow-back" size={36} color="#a78bfa" />  
       </Pressable>
 
-      <Text className='text-3xl mx-auto text-violet-400 font-light mt-5'>Settings</Text>
+      {/* <Text className='text-3xl mx-auto text-violet-400 font-light mt-5'>Settings</Text> */}
 
       <View className='mx-[5%] mt-8'>
         <View className='flex gap-y-2 mt-5'>
