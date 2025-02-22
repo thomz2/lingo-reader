@@ -18,6 +18,8 @@ import { Pressable } from 'react-native-gesture-handler';
 
 import Entypo from '@expo/vector-icons/Entypo';
 
+import '../../global.css'
+
 export default function Notes() {
 
   const { authState, createDeck, getDecks, deleteDeck, exportFlashcardsToAnki } = useAuth();

@@ -10,6 +10,7 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 
 import { useRouter } from 'expo-router';
 
+import '../../global.css'
 
 const Books = () => {
 

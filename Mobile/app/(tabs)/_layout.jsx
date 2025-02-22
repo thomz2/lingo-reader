@@ -2,6 +2,8 @@ import { Redirect, Tabs } from 'expo-router';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { useAuth } from '../hooks/AuthContext';
 
+import '../../global.css'
+
 export default function TabLayout() {
 
   const { authState } = useAuth();
