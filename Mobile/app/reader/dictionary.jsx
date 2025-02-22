@@ -90,7 +90,7 @@ export class DictionaryHandler {
         this.language = language;
         this.storageKey = storageKey;
 
-        this.traducoes._incomplete = [];
+        this.traducoes.traducoesIncompletas = [];
 
         // Carregar traduções do armazenamento local
         this.loadTranslations(language);
@@ -137,9 +137,10 @@ export class DictionaryHandler {
 
             if(traducoesProximas.length == 0) this.traducoes[palavra] = "Não encontrada"
 
-            this.traducoes._incomplete.push(palavra);
+            if(!this.traducoes.traducoesIncompletas.includes(palavra))
+                this.traducoes.traducoesIncompletas.push(palavra);
 
-            console.log("incomplete", this.traducoes._incomplete)
+            console.log("incomplete", this.traducoes.traducoesIncompletas)
         }
 
         this.palavras.add(palavra);
@@ -153,21 +154,22 @@ export class DictionaryHandler {
     }
 
     traducaoIncompleta(palavra){
-        return this.traducoes._incomplete.includes(palavra)
+        return this.traducoes.traducoesIncompletas.find(a => a==palavra)
     }
 
     hasValidTranslation(palavra){
         return this.traducoes[palavra] && !this.traducaoIncompleta(palavra)
     }
 
-    receiveAITranslation(palavra, traducao){
+    async receiveAITranslation(palavra, traducao){
         this.traducoes[palavra] = traducao;
 
         if(this.traducaoIncompleta(palavra)) 
-            this.traducoes._incomplete = this.traducoes._incomplete.filter(t => t!= palavra)
-
+            this.traducoes.traducoesIncompletas = this.traducoes.traducoesIncompletas.filter(t => t!= palavra)
 
         this.update();
+
+        await this.saveTranslations();
     }
 
     async saveTranslations(language=this.language) {
@@ -185,6 +187,11 @@ export class DictionaryHandler {
                 this.traducoes = JSON.parse(storedTranslations);
                 // Sincronizar o conjunto de palavras com as traduções carregadas
                 this.palavras = new Set(Object.keys(this.traducoes));
+
+                if(!this.traducoes.traducoesIncompletas){
+                     this.traducoes.traducoesIncompletas = [];
+
+                }
             }
         } catch (error) {
             console.error("Erro ao carregar traduções:", error);
@@ -205,12 +212,14 @@ export class DictionaryHandler {
         this.sufixes.addWords(Object.keys(this.traducoes).map(reverseString));
     }
 
-    changeLanguage(language){
-        this.saveTranslations();
+    async changeLanguage(language){
+        await this.saveTranslations();
 
         this.language = language;
 
-        this.loadTranslations();
+        if(!this.traducoes.traducoesIncompletas) this.traducoes.traducoesIncompletas = [];
+
+        await this.loadTranslations();
 
         return this;
     }
