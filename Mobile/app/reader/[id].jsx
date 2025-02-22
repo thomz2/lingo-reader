@@ -116,7 +116,7 @@ export default function BookReader() {
     // 1 para carregando
     // 2 para carregamento finalizado
     const [cardGenerationState, setCardGenerationState] = useState(0);
-    const [back, setBack] = useState("lorem ipsum");
+    const [back, setBack] = useState("");
       
     if (loading) {
         return <ActivityIndicator />
@@ -329,9 +329,8 @@ export default function BookReader() {
                                             question: selectedText,
                                             answer: back
                                         });
-                                        console.log("Alo");
                                         setMenuAparece(0);
-                                        // TODO: colocar componente que desaparece depois que leva para a rota de decks do caba
+                                        setCardGenerationState(0);
                                     }
                                     saveFlashcard();
                                 }} 
