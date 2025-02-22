@@ -31,9 +31,11 @@ import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 
 import { Picker } from "@react-native-picker/picker";
 
-import { getBackCardFromText } from "../services/backCardGenerator"
+import { getBackCardFromText } from "../services/chatGpt"
 import { DictionaryHandler } from './dictionary';
 import SaveNotification from '../components/SaveNotification';
+
+// import { translate } from 'translate-google-api';
 
 const dicionario = new DictionaryHandler(dicionarioInglesAlemao);
 
@@ -188,11 +190,7 @@ export default function BookReader() {
                     </TouchableOpacity>}
                     {selectedText != '' && <TouchableOpacity onPress={() => setMenuAparece(2)}>
                         <MaterialIcons name="edit-note" size={54} color="white" />
-                        {/* <SaveNotification trigger={trigger}></SaveNotification> */}
                     </TouchableOpacity>}
-                    {/* {selectedText != '' && <TouchableOpacity onPress={() => exportFlashcardsToAnki(authState.email, 0)}>
-                        <MaterialIcons name="export" size={54} color="white" />
-                    </TouchableOpacity>} */}
                 </View>}
 
                 {menuAparece == 2 && <View className='flex items-center justify-center absolute h-screen w-screen z-10 bg-black/55'>
@@ -241,7 +239,7 @@ export default function BookReader() {
                             onPress={() => {
                                 const getBackCard = async () => {
                                     setCardGenerationState(1);
-                                    const backText = await getBackCardFromText(selectedText, selectedLanguage, dicionario);
+                                    const backText = await getBackCardFromText(selectedText, selectedLanguage);
                                     setBack(backText);
                                     setCardGenerationState(2);
                                 }
