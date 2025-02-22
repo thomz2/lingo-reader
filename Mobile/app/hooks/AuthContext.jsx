@@ -342,39 +342,43 @@ export const AuthProvider = ({ children }) => {
         try {
             // Fetch flashcards from the deck
             const flashcards = await getFlashCardsFromDeck(userEmail, deckId);
-
-            // Create the content for the Anki-compatible file (TSV format)
+    
+            // Create the content for the Anki-compatible file (CSV format)
             let ankiContent = '';
             flashcards.forEach(flashcard => {
-                ankiContent += `"${flashcard.question}","${flashcard.answer}"\n`; // Tab-separated values
+                // Escape double quotes in the question and answer fields
+                const question = flashcard.question.replace(/"/g, '""');
+                const answer = flashcard.answer.replace(/"/g, '""');
+                ankiContent += `${question},;"${answer}"\n`; // Comma-separated values
             });
-
+    
             // Define the file path
-            const fileName = `deck_${deckId}.txt`;
+            const fileName = `deck_${deckId}.csv`;
             const fileUri = `${FileSystem.documentDirectory}${fileName}`;
-
-            console.log('File created successfully:', fileUri);
-
+    
             // Write the content to the file
             await FileSystem.writeAsStringAsync(fileUri, ankiContent, {
                 encoding: FileSystem.EncodingType.UTF8,
             });
+    
+            console.log('File created successfully:', fileUri);
+    
+            // Share the file if sharing is available
             if (await Sharing.isAvailableAsync()) {
                 await Sharing.shareAsync(fileUri, {
-                    mimeType: 'text/plain', // Tipo MIME para arquivos de texto
-                    dialogTitle: 'Compartilhar Arquivo',
-                    UTI: 'public.plain-text', // Especificação para iOS
+                    mimeType: 'text/csv', // MIME type for CSV files
+                    dialogTitle: 'Share File',
+                    UTI: 'public.comma-separated-values-text', // UTI for CSV files on iOS
                 });
             } else {
-                console.log('Compartilhamento não disponível nesta plataforma.');
+                console.log('Sharing is not available on this platform.');
             }
-
-
+    
             console.log('Flashcards exported successfully!');
         } catch (error) {
             console.error('Error exporting flashcards:', error);
         }
-    }
+    };
 
     const value = useMemo(() => ({
         onRegister: register,
