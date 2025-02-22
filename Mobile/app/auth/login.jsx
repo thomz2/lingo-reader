@@ -22,6 +22,9 @@ const Login = () => {
   return (
     <View className='flex-1 justify-center items-center h-screen w-screen'>
       <View className='w-[85%]'>
+        <Text className='text-6xl mb-8 font-thin'>
+          <Text className='text-violet-400'>Lingo</Text><Text className='text-neutral-800'>Reader</Text>
+        </Text>
         <Text className='text-5xl font-black text-neutral-800'>Sign in to your Account</Text>
         <Text className='text-gray-400 font-semibold mt-2'>Enter your email and password to log in</Text>
 
