@@ -92,13 +92,11 @@ export default function BookReader() {
         { code: "br", label: "Português" },
     ];
 
-    const [selectedLanguage, setSelectedLanguage] = useState("placeholder");
+    const [selectedLanguage, setSelectedLanguage] = useState({label: "Deutsch"});
 
     const [decks, setDecks] = useState(null);
 
     const [trigger, saveTrigger] = useState(false);
-
-    const ref = useRef(null);
 
 
     useEffect(() => {
@@ -147,18 +145,55 @@ export default function BookReader() {
 
     const defaultSaveNewCard = async () => {
 
-        await dicionario.put(selectedText);
-
         await putFlashCardOnDeck(authState.email, selectedDeck, {
             id: selectedText,
             question: selectedText,
-            answer: dicionario.getTranslation(selectedText)
-        });
-        console.log(dicionario.traducoes);
+            answer: await getTranslatedText(selectedText, selectedLanguage)
+        }).then(() => console.log(dicionario.traducoes))
 
         // dicionario.traducoes = {};
         // await dicionario.saveTranslations();
         // TODO: colocar componente que desaparece depois que leva para a rota de decks do caba
+    }
+
+    //Função para retornar texto traduzido
+    const getTranslatedText = async (text, language) =>  {
+        //Muda a linguagem do dicionário
+        if(dicionario.language != language)
+            await dicionario.changeLanguage(language.label);
+
+        const dictionaryTranslation = dicionario.getTranslation(text);
+
+        //Se já houver uma tradução válida no dicionário, retorna ela
+        if(dicionario.hasValidTranslation(text)){
+            console.log("SIM", dictionaryTranslation, !!dicionario.traducoes[text])
+            return dictionaryTranslation;
+        }
+
+        //Caso contrário, pega resposta da IA
+        const AiTranslation = await getBackCardFromText(text, language.label);
+
+        console.log(AiTranslation, text, language.label);
+
+        //Se não tiver resposta da IA, retorna a melhor do dicionário
+        if(!AiTranslation){
+            
+            //Se não existe tradução no dicionário, coloca palavra nele e retorna a tradução mais próxima 
+            //Traduções mais próximas são incompletas, e serão atualizadas quando obtida resposta da IA
+            if(!dictionaryTranslation){
+                dicionario.put(text);
+
+                return dicionario.getTranslation(text);
+            }
+
+            return dictionaryTranslation;
+        }
+
+        //Salva tradução da IA no dicionário e dá update no dicionário para lidar com prefixos e sufixos dela
+        //Cacheia respostas da IA evitando mandar repetidos prompts iguais
+        await dicionario.receiveAITranslation(text, AiTranslation);
+
+        return AiTranslation;
     }
 
 
@@ -236,25 +271,10 @@ export default function BookReader() {
                                 const getBackCard = async () => {
                                     setCardGenerationState(1);
 
-                                    //Muda a linguagem do dicionário
-                                    if(dicionario.language != selectedLanguage)
-                                        await dicionario.changeLanguage(selectedLanguage);
-
-                                    //Se já houver uma tradução válida no dicionário, retorna ela
-                                    if(dicionario.hasValidTranslation(selectedText)){
-                                        setBack(dicionario.traducoes[selectedText]);
-                                        setCardGenerationState(2);
-                                        return;
-                                    } 
-
-                                    //Caso contrário, pega resposta da IA
-                                    const backText = await getBackCardFromText(selectedText, selectedLanguage);
+                                    const backText = getTranslatedText(selectedText, selectedLanguage);
 
                                     setBack(backText);
                                     setCardGenerationState(2);
-
-                                    //Salva tradução da IA no dicionário e dá update no dicionário para lidar com prefixos e sufixos dela
-                                    await dicionario.receiveAITranslation(selectedText, backText);
                                 }
                                 getBackCard();
                             }} 
@@ -332,7 +352,6 @@ export default function BookReader() {
                         fileSystem={useFileSystem}
                         // allowPopups={false}
                         allowScriptedContent={true}
-                        ref={ref}
                         injectedJavaScript={`
                             // Adiciona a metatag para evitar tradução
                             console.log("teste")
@@ -342,8 +361,6 @@ export default function BookReader() {
                         onSelected={(selectedText) => {
                             setMenuAparece(1)
                             console.log('TEXTO SELECIONADO:', selectedText);
-
-                            console.log(ref)
 
                             const texto = selectedText.replace(/[\t\n\r\f\v]+/g, " ").trim();
                             setSelectedText(texto);

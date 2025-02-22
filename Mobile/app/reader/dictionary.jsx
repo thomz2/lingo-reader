@@ -83,7 +83,7 @@ class WordTrie {
 
 export class DictionaryHandler {
 
-    constructor(dictionary, language="de", storageKey="translations") {
+    constructor(dictionary, language="de", storageKey="dictionary") {
         this.palavras = new Set();
         this.traducoes = {};
         this.dictionary = dictionary;
@@ -158,7 +158,7 @@ export class DictionaryHandler {
     }
 
     hasValidTranslation(palavra){
-        return this.traducoes[palavra] && !this.traducaoIncompleta(palavra)
+        return this.traducoes[palavra] != undefined && !this.traducaoIncompleta(palavra)
     }
 
     async receiveAITranslation(palavra, traducao){
@@ -208,8 +208,10 @@ export class DictionaryHandler {
         const reverseString = word => word.split('').reverse().join('');
 
         // Atualizar radicais com as palavras atualmente no dicionário
-        this.prefixes.addWords(Object.keys(this.traducoes))
-        this.sufixes.addWords(Object.keys(this.traducoes).map(reverseString));
+        const palavrasValidas = Object.keys(this.traducoes).filter(palavra => this.hasValidTranslation(palavra));
+
+        this.prefixes.addWords(palavrasValidas);
+        this.sufixes.addWords(palavrasValidas.map(reverseString));
     }
 
     async changeLanguage(language){

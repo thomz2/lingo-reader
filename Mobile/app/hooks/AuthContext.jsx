@@ -251,7 +251,7 @@ export const AuthProvider = ({ children }) => {
             let decks = await getDecks(userEmail);
             decks.push(newDeck);
             const jsonValue = JSON.stringify(decks);
-            await AsyncStorage.setItem(`${userEmail}.decks`, jsonValue);
+            await AsyncStorage.setItem(`${userEmail}.deck`, jsonValue);
             console.log('Deck criado com sucesso!');
         } catch (e) {
             console.error('Erro ao criar o deck:', e);
@@ -264,7 +264,7 @@ export const AuthProvider = ({ children }) => {
             let decks = await getDecks(userEmail);
             decks = decks.filter(deck => deck.id !== deckId);
             const jsonValue = JSON.stringify(decks);
-            await AsyncStorage.setItem(`${userEmail}.decks`, jsonValue);
+            await AsyncStorage.setItem(`${userEmail}.deck`, jsonValue);
             console.log('Deck deletado com sucesso!');
         } catch (e) {
             console.error('Erro ao deletar o deck:', e);
@@ -274,7 +274,7 @@ export const AuthProvider = ({ children }) => {
     // Obtém todos os decks do usuário
     const getDecks = async (userEmail) => {
         try {
-            const jsonValue = await AsyncStorage.getItem(`${userEmail}.decks`);
+            const jsonValue = await AsyncStorage.getItem(`${userEmail}.deck`);
             return jsonValue != null ? JSON.parse(jsonValue) : [];
         } catch (e) {
             console.error('Erro ao obter os decks:', e);
@@ -301,7 +301,7 @@ export const AuthProvider = ({ children }) => {
         if (deckIndex !== -1) {
             decks[deckIndex].flashcards.push(flashcard);
             const jsonValue = JSON.stringify(decks);
-            await AsyncStorage.setItem(`${userEmail}.decks`, jsonValue);
+            await AsyncStorage.setItem(`${userEmail}.deck`, jsonValue);
             console.log('Flashcard adicionado com sucesso!');
         }
         } catch (e) {
@@ -317,7 +317,7 @@ export const AuthProvider = ({ children }) => {
             if (deckIndex !== -1) {
                 decks[deckIndex].flashcards = decks[deckIndex].flashcards.filter(fc => fc.id !== flashcardId);
                 const jsonValue = JSON.stringify(decks);
-                await AsyncStorage.setItem(`${userEmail}.decks`, jsonValue);
+                await AsyncStorage.setItem(`${userEmail}.deck`, jsonValue);
                 console.log('Flashcard deletado com sucesso!');
             }
         } catch (e) {
