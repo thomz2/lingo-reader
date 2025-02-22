@@ -6,11 +6,16 @@ class WordTrie {
     constructor(wordList, closeMatchLength = 3) {
         this.root = {};
 
+        this.addWords(wordList);
+
+        this.minLengthRatio = closeMatchLength;
+    }
+
+    addWords(wordList){
+
         for (const word of wordList) {
             this.addWord(word.toLowerCase(), word.toLowerCase(), this.root);
         }
-
-        this.minLengthRatio = closeMatchLength;
     }
 
     addWord(word, segment, node) {
@@ -86,7 +91,7 @@ export class DictionaryHandler {
         this.storageKey = storageKey;
 
         // Carregar traduções do armazenamento local
-        this.loadTranslations();
+        this.loadTranslations(language);
 
         const reverseString = word => word.split('').reverse().join('');
 
@@ -124,7 +129,7 @@ export class DictionaryHandler {
             console.log(samePrefix, traducoesProximas)
 
 
-            this.traducoes[palavra] = "palavra não encontrada, traduções mais próximas: \\n   " + traducoesProximas;
+            this.traducoes[palavra] = "traduções mais próximas: \\n   " + traducoesProximas;
 
             if(traducoesProximas.length == 0) this.traducoes[palavra] = "Não encontrada"
         }
@@ -139,17 +144,17 @@ export class DictionaryHandler {
         return this.traducoes[palavra];
     }
 
-    async saveTranslations() {
+    async saveTranslations(language=this.language) {
         try {
-            await AsyncStorage.setItem(this.storageKey, JSON.stringify(this.traducoes));
+            await AsyncStorage.setItem(this.storageKey + language, JSON.stringify(this.traducoes));
         } catch (error) {
             console.error("Erro ao salvar traduções:", error);
         }
     }
 
-    async loadTranslations() {
+    async loadTranslations(language=this.language) {
         try {
-            const storedTranslations = await AsyncStorage.getItem(this.storageKey);
+            const storedTranslations = await AsyncStorage.getItem(this.storageKey + language);
             if (storedTranslations) {
                 this.traducoes = JSON.parse(storedTranslations);
                 // Sincronizar o conjunto de palavras com as traduções carregadas
@@ -158,5 +163,29 @@ export class DictionaryHandler {
         } catch (error) {
             console.error("Erro ao carregar traduções:", error);
         }
+    }
+
+    update(){
+
+        //Insere traduções encontradas como palavras
+        for(const [word, translation] of Object.entries(this.traducoes)){
+            this.dictionary[word] = translation;
+        }
+
+        const reverseString = word => word.split('').reverse().join('');
+
+        // Atualizar radicais com as palavras atualmente no dicionário
+        this.prefixes.addWords(Object.keys(this.traducoes))
+        this.sufixes.addWords(Object.keys(this.traducoes).map(reverseString));
+    }
+
+    changeLanguage(language){
+        this.saveTranslations();
+
+        this.language = language;
+
+        this.loadTranslations();
+
+        return this;
     }
 }
