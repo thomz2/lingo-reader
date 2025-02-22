@@ -299,6 +299,8 @@ export const AuthProvider = ({ children }) => {
             let decks = await getDecks(userEmail);
             const deckIndex = decks.findIndex(deck => deck.id === deckId);
         if (deckIndex !== -1) {
+            //Elimina cartas iguais, gambiarra momentânea
+            decks[deckIndex].flashcards = decks[deckIndex].flashcards.filter(f => f.question != flashcard.question)
             decks[deckIndex].flashcards.push(flashcard);
             const jsonValue = JSON.stringify(decks);
             await AsyncStorage.setItem(`${userEmail}.deck`, jsonValue);
