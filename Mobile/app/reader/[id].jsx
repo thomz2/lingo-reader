@@ -271,7 +271,7 @@ export default function BookReader() {
                                 const getBackCard = async () => {
                                     setCardGenerationState(1);
 
-                                    const backText = getTranslatedText(selectedText, selectedLanguage);
+                                    const backText = await getTranslatedText(selectedText, selectedLanguage);
 
                                     setBack(backText);
                                     setCardGenerationState(2);
