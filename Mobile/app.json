@@ -23,7 +23,8 @@
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "package": "com.thomz.LingoReader"
     },
     "web": {
       "bundler": "metro",
@@ -31,16 +32,15 @@
     },
     "plugins": [
       "expo-router",
-      "expo-secure-store",
-      [
-        "expo-font",
-        {
-          "fonts": [
-            "./assets/fonts/*.ttf",
-            "./assets/fonts/Poppins-Black.ttf"
-          ]
-        }
-      ]
-    ]
+      "expo-secure-store"
+    ],
+    "extra": {
+      "router": {
+        "origin": false
+      },
+      "eas": {
+        "projectId": "9611b512-79dd-4a56-b28b-861609803ffd"
+      }
+    }
   }
 }
