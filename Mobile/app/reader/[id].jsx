@@ -92,7 +92,7 @@ export default function BookReader() {
         { code: "br", label: "Português" },
     ];
 
-    const [selectedLanguage, setSelectedLanguage] = useState({label: "Deutsch"});
+    const [selectedLanguage, setSelectedLanguage] = useState({label: "Deutsch", code: "de"});
 
     const [decks, setDecks] = useState(null);
 
@@ -158,25 +158,29 @@ export default function BookReader() {
 
     //Função para retornar texto traduzido
     const getTranslatedText = async (text, language) =>  {
+
+        console.log(text, language);
         //Muda a linguagem do dicionário
-        if(dicionario.language != language)
+        if(dicionario.language != language.label)
             await dicionario.changeLanguage(language.label);
 
         const dictionaryTranslation = dicionario.getTranslation(text);
 
         //Se já houver uma tradução válida no dicionário, retorna ela
         if(dicionario.hasValidTranslation(text)){
-            console.log("SIM", dictionaryTranslation, !!dicionario.traducoes[text])
+            console.log("SIM", dictionaryTranslation!=undefined, !!dicionario.traducoes[text])
             return dictionaryTranslation;
         }
 
         //Caso contrário, pega resposta da IA
         const AiTranslation = await getBackCardFromText(text, language.label);
 
-        console.log(AiTranslation, text, language.label);
+        console.log(AiTranslation, text, language);
 
         //Se não tiver resposta da IA, retorna a melhor do dicionário
         if(!AiTranslation){
+
+            console.log("SEM RESPOSTA DO PROMPT")
             
             //Se não existe tradução no dicionário, coloca palavra nele e retorna a tradução mais próxima 
             //Traduções mais próximas são incompletas, e serão atualizadas quando obtida resposta da IA
@@ -256,7 +260,7 @@ export default function BookReader() {
                                         <Picker.Item
                                             key={lang.code}
                                             label={lang.label}
-                                            value={lang.code}
+                                            value={lang}
                                             enabled={!lang.disabled}
                                         />
                                     ))}
@@ -270,8 +274,10 @@ export default function BookReader() {
                             onPress={() => {
                                 const getBackCard = async () => {
                                     setCardGenerationState(1);
-
+                                    
                                     const backText = await getTranslatedText(selectedText, selectedLanguage);
+
+                                    console.log(dicionario.traducoes)
 
                                     setBack(backText);
                                     setCardGenerationState(2);

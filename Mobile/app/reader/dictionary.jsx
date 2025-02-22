@@ -83,7 +83,7 @@ class WordTrie {
 
 export class DictionaryHandler {
 
-    constructor(dictionary, language="de", storageKey="dictionary") {
+    constructor(dictionary, language="Deutsch", storageKey="dictionary") {
         this.palavras = new Set();
         this.traducoes = {};
         this.dictionary = dictionary;
@@ -114,8 +114,8 @@ export class DictionaryHandler {
             console.log("palavra repetida");
         }
 
-        if (this.dictionary[palavra]) {
-            this.traducoes[palavra] = this.dictionary[palavra];
+        else if (this.getTranslation(palavra)) {
+            this.traducoes[palavra] = this.getTranslation(palavra);
         } else {
 
             const samePrefix = this.prefixes.closestMatch(palavra);
@@ -125,7 +125,7 @@ export class DictionaryHandler {
             // const similarWords = new Set(samePrefix.concat(sameSufix));
 
             const traducoesProximas = samePrefix.map(
-                (p,i) => `\\n   ${i}: ${p} -> ${this.dictionary[p]}, \\n`)
+                (p,i) => `\t   ${i}: ${p} -> ${this.dictionary[p]}, \t`)
 
             // let i = 0;
 
@@ -133,7 +133,7 @@ export class DictionaryHandler {
 
 
             //TODO: Deveria armazenar um objeto, separar responsabilidades
-            this.traducoes[palavra] = "traduções mais próximas: \\n   " + traducoesProximas;
+            this.traducoes[palavra] = "traduções mais próximas:   " + traducoesProximas;
 
             if(traducoesProximas.length == 0) this.traducoes[palavra] = "Não encontrada"
 
@@ -150,7 +150,10 @@ export class DictionaryHandler {
     }
 
     getTranslation(palavra) {
-        return this.traducoes[palavra];
+        if(this.traducoes[palavra]) return this.traducoes[palavra];
+
+        //Só usa o dicionário do alemão se estiver no alemão
+        if(this.dictionary[palavra] && this.language == "Deutsch") return this.dictionary[palavra];
     }
 
     traducaoIncompleta(palavra){
@@ -222,6 +225,8 @@ export class DictionaryHandler {
         if(!this.traducoes.traducoesIncompletas) this.traducoes.traducoesIncompletas = [];
 
         await this.loadTranslations();
+        
+        console.log("Mudou linguagem",language, this.traducoes)
 
         return this;
     }
