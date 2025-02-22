@@ -6,11 +6,16 @@ class WordTrie {
     constructor(wordList, closeMatchLength = 3) {
         this.root = {};
 
+        this.addWords(wordList);
+
+        this.minLengthRatio = closeMatchLength;
+    }
+
+    addWords(wordList){
+
         for (const word of wordList) {
             this.addWord(word.toLowerCase(), word.toLowerCase(), this.root);
         }
-
-        this.minLengthRatio = closeMatchLength;
     }
 
     addWord(word, segment, node) {
@@ -88,7 +93,11 @@ export class DictionaryHandler {
         // Carregar traduções do armazenamento local
         this.loadTranslations(language);
 
-        this.updatePrefixCheck();
+        const reverseString = word => word.split('').reverse().join('');
+
+        // Atualizar radicais com as palavras atualmente no dicionário
+        this.prefixes = new WordTrie(Object.keys(this.dictionary));
+        this.sufixes  = new WordTrie(Object.keys(this.dictionary).map(reverseString), 5);
     }
 
     async put(palavra) {
@@ -156,8 +165,9 @@ export class DictionaryHandler {
         }
     }
 
-    updatePrefixCheck(){
+    update(){
 
+        //Insere traduções encontradas como palavras
         for(const [word, translation] of this.traducoes){
             this.dictionary[word] = translation;
         }
@@ -165,8 +175,8 @@ export class DictionaryHandler {
         const reverseString = word => word.split('').reverse().join('');
 
         // Atualizar radicais com as palavras atualmente no dicionário
-        this.prefixes = new WordTrie(Object.keys(this.dictionary));
-        this.sufixes  = new WordTrie(Object.keys(this.dictionary).map(reverseString), 5);
+        this.prefixes.addWords(Object.keys(this.traducoes))
+        this.sufixes.addWords(Object.keys(this.traducoes).map(reverseString));
     }
 
     changeLanguage(language){

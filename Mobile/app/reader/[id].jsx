@@ -254,7 +254,7 @@ export default function BookReader() {
 
                                     //Salva tradução da IA no dicionário e dá update no dicionário para lidar com prefixos e sufixos dela
                                     dicionario.traducoes[selectedText] = backText;
-                                    dicionario.updatePrefixCheck();
+                                    dicionario.update();
                                 }
                                 getBackCard();
                             }} 
