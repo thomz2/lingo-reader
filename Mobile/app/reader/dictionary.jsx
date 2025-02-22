@@ -168,7 +168,7 @@ export class DictionaryHandler {
     update(){
 
         //Insere traduções encontradas como palavras
-        for(const [word, translation] of this.traducoes){
+        for(const [word, translation] of Object.entries(this.traducoes)){
             this.dictionary[word] = translation;
         }
 
