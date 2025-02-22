@@ -237,11 +237,11 @@ export default function BookReader() {
                                     setCardGenerationState(1);
 
                                     //Muda a linguagem do dicionário
-                                    dicionario.changeLanguage(selectedLanguage);
+                                    if(dicionario.language != selectedLanguage)
+                                        await dicionario.changeLanguage(selectedLanguage);
 
                                     //Se já houver uma tradução válida no dicionário, retorna ela
-                                    console.log(dicionario.hasValidTranslation(palavra))
-                                    if(dicionario.hasValidTranslation(palavra)){
+                                    if(dicionario.hasValidTranslation(selectedText)){
                                         setBack(dicionario.traducoes[selectedText]);
                                         setCardGenerationState(2);
                                         return;
@@ -254,7 +254,7 @@ export default function BookReader() {
                                     setCardGenerationState(2);
 
                                     //Salva tradução da IA no dicionário e dá update no dicionário para lidar com prefixos e sufixos dela
-                                    dicionario.receiveAITranslation(selectedText, backText);
+                                    await dicionario.receiveAITranslation(selectedText, backText);
                                 }
                                 getBackCard();
                             }} 
