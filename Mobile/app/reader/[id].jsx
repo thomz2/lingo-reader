@@ -239,8 +239,9 @@ export default function BookReader() {
                                     //Muda a linguagem do dicionário
                                     dicionario.changeLanguage(selectedLanguage);
 
-                                    //Se já houver uma tradução no dicionário, retorna ela
-                                    if(dicionario.traducoes[selectedText]){
+                                    //Se já houver uma tradução válida no dicionário, retorna ela
+                                    console.log(dicionario.hasValidTranslation(palavra))
+                                    if(dicionario.hasValidTranslation(palavra)){
                                         setBack(dicionario.traducoes[selectedText]);
                                         setCardGenerationState(2);
                                         return;
@@ -253,8 +254,7 @@ export default function BookReader() {
                                     setCardGenerationState(2);
 
                                     //Salva tradução da IA no dicionário e dá update no dicionário para lidar com prefixos e sufixos dela
-                                    dicionario.traducoes[selectedText] = backText;
-                                    dicionario.update();
+                                    dicionario.receiveAITranslation(selectedText, backText);
                                 }
                                 getBackCard();
                             }} 

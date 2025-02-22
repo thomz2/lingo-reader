@@ -9,7 +9,7 @@ export async function getBackCardFromText(text, language) {
             messages: [
                 { 
                     role: "user",
-                    content: `every message you receive, you translate to ${language}`
+                    content: `every message you receive, you translate to ${language}, and you will return only the translation`
                 },
                 { 
                     role: "user", 
@@ -26,6 +26,7 @@ export async function getBackCardFromText(text, language) {
         // .then((response) => response.json())
         // .then((json) => console.log(json));
 
+    console.log(jsonRes)
     const jsonRes = await response.json();
 
     if (!jsonRes.choices[0].message.content) return false;

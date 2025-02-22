@@ -83,12 +83,14 @@ class WordTrie {
 
 export class DictionaryHandler {
 
-    constructor(dictionary, language="de", storageKey="translation") {
+    constructor(dictionary, language="de", storageKey="translations") {
         this.palavras = new Set();
         this.traducoes = {};
         this.dictionary = dictionary;
         this.language = language;
         this.storageKey = storageKey;
+
+        this.traducoes._incomplete = [];
 
         // Carregar traduções do armazenamento local
         this.loadTranslations(language);
@@ -98,12 +100,15 @@ export class DictionaryHandler {
         // Atualizar radicais com as palavras atualmente no dicionário
         this.prefixes = new WordTrie(Object.keys(this.dictionary));
         this.sufixes  = new WordTrie(Object.keys(this.dictionary).map(reverseString), 5);
-    }
 
+        this.update();
+
+
+    }
+    
+    //Método para colocar palavras sem uso de IA
     async put(palavra) {
         palavra = palavra.toLowerCase();
-
-        console.log("TEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEESTE", this.dictionary[palavra])
 
         if (this.palavras.has(palavra)) {
             console.log("palavra repetida");
@@ -114,8 +119,6 @@ export class DictionaryHandler {
         } else {
 
             const samePrefix = this.prefixes.closestMatch(palavra);
-
-            console.log(samePrefix, "prefixo")
 
             // const sameSufix  = this.sufixes.closestMatch(palavra, true);
 
@@ -129,9 +132,14 @@ export class DictionaryHandler {
             console.log(samePrefix, traducoesProximas)
 
 
+            //TODO: Deveria armazenar um objeto, separar responsabilidades
             this.traducoes[palavra] = "traduções mais próximas: \\n   " + traducoesProximas;
 
             if(traducoesProximas.length == 0) this.traducoes[palavra] = "Não encontrada"
+
+            this.traducoes._incomplete.push(palavra);
+
+            console.log("incomplete", this.traducoes._incomplete)
         }
 
         this.palavras.add(palavra);
@@ -142,6 +150,24 @@ export class DictionaryHandler {
 
     getTranslation(palavra) {
         return this.traducoes[palavra];
+    }
+
+    traducaoIncompleta(palavra){
+        return this.traducoes._incomplete.includes(palavra)
+    }
+
+    hasValidTranslation(palavra){
+        return this.traducoes[palavra] && !this.traducaoIncompleta(palavra)
+    }
+
+    receiveAITranslation(palavra, traducao){
+        this.traducoes[palavra] = traducao;
+
+        if(this.traducaoIncompleta(palavra)) 
+            this.traducoes._incomplete = this.traducoes._incomplete.filter(t => t!= palavra)
+
+
+        this.update();
     }
 
     async saveTranslations(language=this.language) {
