@@ -147,11 +147,7 @@ export default function BookReader() {
 
     const defaultSaveNewCard = async () => {
 
-        console.log("Chamando put...");
         await dicionario.put(selectedText);
-        console.log("put foi chamado!");
-
-        console.log("teste")
 
         await putFlashCardOnDeck(authState.email, selectedDeck, {
             id: selectedText,
@@ -239,9 +235,26 @@ export default function BookReader() {
                             onPress={() => {
                                 const getBackCard = async () => {
                                     setCardGenerationState(1);
+
+                                    //Muda a linguagem do dicionário
+                                    dicionario.changeLanguage(selectedLanguage);
+
+                                    //Se já houver uma tradução no dicionário, retorna ela
+                                    if(dicionario.traducoes[selectedText]){
+                                        setBack(dicionario.traducoes[selectedText]);
+                                        setCardGenerationState(2);
+                                        return;
+                                    } 
+
+                                    //Caso contrário, pega resposta da IA
                                     const backText = await getBackCardFromText(selectedText, selectedLanguage);
+
                                     setBack(backText);
                                     setCardGenerationState(2);
+
+                                    //Salva tradução da IA no dicionário e dá update no dicionário para lidar com prefixos e sufixos dela
+                                    dicionario.traducoes[selectedText] = backText;
+                                    dicionario.updatePrefixCheck();
                                 }
                                 getBackCard();
                             }} 
