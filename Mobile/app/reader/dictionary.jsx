@@ -117,14 +117,14 @@ export class DictionaryHandler {
             // const similarWords = new Set(samePrefix.concat(sameSufix));
 
             const traducoesProximas = samePrefix.map(
-                (p,i) => `\n   ${i}: ${p} -> ${this.dictionary[p]}, \n`)
+                (p,i) => `\\n   ${i}: ${p} -> ${this.dictionary[p]}, \\n`)
 
             // let i = 0;
 
             console.log(samePrefix, traducoesProximas)
 
 
-            this.traducoes[palavra] = "palavra não encontrada, traduções mais próximas: \n   " + traducoesProximas;
+            this.traducoes[palavra] = "palavra não encontrada, traduções mais próximas: \\n   " + traducoesProximas;
 
             if(traducoesProximas.length == 0) this.traducoes[palavra] = "Não encontrada"
         }

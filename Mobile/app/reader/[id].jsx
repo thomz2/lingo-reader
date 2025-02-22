@@ -6,11 +6,12 @@ COISAS QUE TENHO QUE PEGAR AQUI AINDA E MUDAR NA ESTRUTURA DE DADOS DO LIVRO
 - incrementar a quantidade de vezes que ele leu
 - timestamp da ultima leitura
 
+- Lista de flashcards ser um slider autocontido, para não atrapalhar ver outros decks
 */
 
 
 import { View, Text, SafeAreaView, ActivityIndicator, TouchableOpacity, ScrollView, Keyboard, InteractionManager  } from 'react-native'
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 
 import { Reader, useReader, ReaderProvider } from '@epubjs-react-native/core';
 import { useFileSystem } from '@epubjs-react-native/expo-file-system'; // for Expo project
@@ -95,6 +96,8 @@ export default function BookReader() {
 
     const [trigger, saveTrigger] = useState(false);
 
+    const ref = useRef(null);
+
 
     useEffect(() => {
         const getAndSetDecks = async () => {
@@ -107,7 +110,7 @@ export default function BookReader() {
         getAndSetDecks();
     }, []);
 
-    const [selectedDeck, setSelectedDeck] = useState(-1);
+    const [selectedDeck, setSelectedDeck] = useState(0);
 
     // 0 para nao clicou em gerar
     // 1 para carregando
@@ -154,6 +157,9 @@ export default function BookReader() {
             answer: dicionario.getTranslation(selectedText)
         });
         console.log(dicionario.traducoes);
+
+        // dicionario.traducoes = {};
+        // await dicionario.saveTranslations();
         // TODO: colocar componente que desaparece depois que leva para a rota de decks do caba
     }
 
@@ -315,23 +321,18 @@ export default function BookReader() {
                         fileSystem={useFileSystem}
                         // allowPopups={false}
                         allowScriptedContent={true}
-                        // injectedJavaScript={`
-                        //     // Adiciona a metatag para evitar tradução
-                        //     const meta = document.createElement('meta');
-                        //     meta.name = 'google';
-                        //     meta.content = 'notranslate';
-                        //     document.head.appendChild(meta);
-                        
-                        //     // Define o atributo translate="no" no elemento <html>
-                        //     document.querySelector('html').setAttribute('translate', 'no');
-                        
-                        //     true; // Necessário para o Android
-                        //   `}
+                        ref={ref}
+                        injectedJavaScript={`
+                            // Adiciona a metatag para evitar tradução
+                            console.log("teste")
+                          `}
 
                         enableSelection={true}
                         onSelected={(selectedText) => {
                             setMenuAparece(1)
                             console.log('TEXTO SELECIONADO:', selectedText);
+
+                            console.log(ref)
 
                             const texto = selectedText.replace(/[\t\n\r\f\v]+/g, " ").trim();
                             setSelectedText(texto);
